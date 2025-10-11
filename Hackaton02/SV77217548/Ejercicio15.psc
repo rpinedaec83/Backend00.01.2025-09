@@ -9,20 +9,20 @@ Proceso Ejercicio15
 	
     Repetir
         Escribir "Seleccionar la opcion para convertir"
-        Escribir "1) Centímetros  -> Pulgadas"
-        Escribir "2) Pulgadas     -> Centímetros"
+        Escribir "1) Centimetros  -> Pulgadas"
+        Escribir "2) Pulgadas     -> Centimetros"
 		Escribir "3) Libras       -> Kilogramos"
 		Escribir "4) Kilogramos   -> Libras"
         Escribir "0) Salir"
-        Escribir "Elige una opción:"
+        Escribir "Elige una opcion:"
         Leer seleccion
 		
         Segun seleccion Hacer
             1:
-                Escribir "Ingrese longitud en centímetros:"
+                Escribir "Ingrese longitud en centimetros:"
                 Leer cm
                 Si cm < 0 Entonces
-                    Escribir "Valor inválido."
+                    Escribir "Valor invalido."
                 Sino
                     pulgadas <- cm / CM_POR_PULG
                     Escribir cm, " cm = ", pulgadas, " pulgadas"
@@ -32,7 +32,7 @@ Proceso Ejercicio15
                 Escribir "Ingrese longitud en pulgadas:"
                 Leer pulgadas
                 Si pulgadas < 0 Entonces
-                    Escribir "Valor inválido."
+                    Escribir "Valor invalido."
                 Sino
                     cm <- pulgadas * CM_POR_PULG
                     Escribir pulgadas, " pulgadas = ", cm, " cm"
@@ -42,7 +42,7 @@ Proceso Ejercicio15
                 Escribir "Ingrese peso en libras:"
                 Leer lb
                 Si lb < 0 Entonces
-                    Escribir "Valor inválido."
+                    Escribir "Valor invalido."
                 Sino
                     kg <- lb * KG_POR_LIBRA
                     Escribir lb, " lb = ", kg, " kg"
@@ -52,7 +52,7 @@ Proceso Ejercicio15
                 Escribir "Ingrese peso en kg:"
                 Leer kg
                 Si kg < 0 Entonces
-                    Escribir "Valor inválido."
+                    Escribir "Valor invalido."
                 Sino
                     lb <- kg / KG_POR_LIBRA
                     Escribir kg, " kg = ", lb, " lb"
@@ -62,7 +62,7 @@ Proceso Ejercicio15
                 Escribir "Fin del programa."
 				
             De Otro Modo:
-                Escribir "Opción inválida. Elige 1, 2, 3, 4 o 0."
+                Escribir "Opcion invalida. Elige 1, 2, 3, 4 o 0."
         FinSegun
 		
     Hasta Que seleccion = 0
