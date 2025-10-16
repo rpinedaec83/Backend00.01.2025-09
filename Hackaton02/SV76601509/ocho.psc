@@ -1,0 +1,26 @@
+Algoritmo ocho
+	
+	// Hacer un algoritmo de pseint para calcular
+	// el promedio de tres notas y determinar
+	// si el estudiante aprobo o no
+	
+	Definir nota1, nota2, nota3, promedio Como Real
+	
+	Escribir "Ingree la primera nota: "
+	leer nota1
+	Escribir "Ingrese la segunda nota: "
+	Leer nota2
+	Escribir "Ingrese la tercera nota: "
+	Leer nota3
+	
+	promedio <- (nota1 + nota2 + nota3) / 3
+	
+	Escribir "El promedio del estudiante es: ", promedio
+	
+	Si promedio >= 10.0 Entonces
+		Escribir "El estudiante APROBO"
+	SiNo
+		Escribir "El estudiante NO APROBO"
+	Fin Si
+	
+FinAlgoritmo
