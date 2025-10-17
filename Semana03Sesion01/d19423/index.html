@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Semana 03 Sesion 01</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <h1>Semana 03 Sesion 01</h1>
+    <button onclick="alert('Hola desde el boton')">Haz Click</button>
+    <br>
+    <button id="btnClick">Haz otro click</button>
+    <br>
+    <button id="btnClick01">El tercer boton</button>
+
+    <script>
+        document.getElementById("btnClick").addEventListener("click", (e)=>{
+            e.preventDefault();
+            alert("Hola desde el otro boton");
+        })
+    </script>
+    <script src="script.js"></script>
+</body>
+</html>
