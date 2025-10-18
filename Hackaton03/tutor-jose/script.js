@@ -177,3 +177,84 @@ function ejercicio17() {
 
   alert(`La hora dentro de un segundo es: ${hour}:${minute}:${second}`);
 }
+
+function ejercicio21() {
+  /**21. Hacer un algoritmo en Javascript que
+   * permita calcular el factorial de un número. */
+
+  let num = Number.parseInt(prompt("Ingrese un numero"));
+  let factorial = 1;
+  for (let i = 1; i <= num; i++) {
+    factorial = factorial * i;
+  }
+
+  const resul = `El factorial de ${num} es ${factorial}`;
+
+  alert(resul);
+}
+
+function ejercicio22() {
+  /**
+   * 22. Hacer un algoritmo en Javascript
+   *  para calcular la suma de los n primeros números.
+   */
+
+  let num = Number.parseInt(prompt("Ingrese un numero"));
+  let sum = 0;
+  for (let i = 1; i <= num; i++) {
+    sum = sum + i;
+  }
+  const resul = `La suma de los ${num} primeros numeros es ${sum}`;
+
+  alert(resul);
+}
+
+function ejercicio25() {
+  /**
+25. Hacer un algoritmo en Javascript para calcular 
+el factorial de un número de una forma distinta.
+   */
+  let num = Number.parseInt(prompt("Ingrese un numero"));
+  let factorial = 1;
+  let counter = 1;
+
+  while (counter <= num) {
+    factorial = factorial * counter;
+    counter++;
+  }
+
+  const resul = `El factorial de ${num} es ${factorial}`;
+
+  alert(resul);
+}
+
+function ejercicio28() {
+  /**28. Hacer un algoritmo en Javascript para calcular la suma de los
+   * primeros cien números con un ciclo repetir. */
+
+  let sum = 0;
+  let counter = 1;
+
+  do {
+    sum = sum + counter;
+    counter++;
+  } while (counter <= 100);
+
+  const resul = `La suma de los primeros 100 numeros es ${sum}`;
+  alert(resul);
+}
+
+function ejercicio33() {
+  /*
+   * 33. Hacer un algoritmo en Javascript que permita al usuario continuar con el programa.
+   * *
+   */
+
+  let letter = "s";
+  do {
+    letter = prompt("Desea continuar? (s/n)");
+  } while (letter.toLocaleLowerCase() != "n");
+  alert("Gracias por usar el programa");
+}
+
+
