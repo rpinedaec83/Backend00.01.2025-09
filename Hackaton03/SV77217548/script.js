@@ -1000,7 +1000,328 @@ async function ejercicio30() {
   }
 }
 
+async function ejercicio31() {
+  try {
+    const lista = [];
+    const TOTAL = 10;
 
+    while (lista.length < TOTAL) {
+      const index = lista.length + 1;
+      const n = await askNumber({
+        title: "Ejercicio 31",
+        subtitle: "Hacer un algoritmo parar calcular la media de los números pares e impares, sólo se ingresará diez números.",
+        inputLabel: `Ingresa número #${index}`,
+        integer: true
+      });
+      lista.push(n);
+    }
+
+    const pares = [];
+    const impares  = [];
+    for (let i = 0; i < lista.length; i++) {
+      const x = lista[i];
+      if (x % 2 === 0) pares.push(x);
+      else impares.push(x);
+    }
+
+    let textoP, textoI;
+
+    if (pares.length === 0) {
+      textoP = "No hay números pares.";
+    } else {
+      let sumaP = 0;
+      for (let i = 0; i < pares.length; i++) sumaP += pares[i];
+      textoP = `Media pares: <b>${(sumaP / pares.length).toFixed(4)}</b> (n=${pares.length})`;
+    }
+
+    if (impares.length === 0) {
+      textoI = "No hay números impares.";
+    } else {
+      let sumaI = 0;
+      for (let i = 0; i < impares.length; i++) sumaI += impares[i];
+      textoI = `Media impares: <b>${(sumaI / impares.length).toFixed(4)}</b> (n=${impares.length})`;
+    }
+
+    await Swal.fire({
+      icon: "info",
+      html: `
+        Lista: <b>${lista.join(", ")}</b><br>
+        ${textoP}<br>
+        ${textoI}
+      `
+    });
+
+  } catch (err) {
+    if (err.message !== "Cancelado") showError(err.message);
+  }
+}
+
+async function ejercicio32() {
+  try {
+    const TOTAL = 11;
+    const poblaciones = [];
+
+    while (poblaciones.length < TOTAL) {
+      const index = poblaciones.length + 1;
+      const p = await askNumber({
+        title: "Ejercicio 32",
+        subtitle: "Se quiere saber cuál es la ciudad con la población de más personas, son tres provincias y once ciudades, hacer un algoritmo que nos permita saber eso.",
+        inputLabel: `Ingresa la población de la ciudad #${index}`,
+        integer: true,
+        min: 0
+      });
+      poblaciones.push(p);
+    }
+
+    let max = poblaciones[0];
+    for (let i = 1; i < poblaciones.length; i++) {
+      if (poblaciones[i] > max) max = poblaciones[i];
+    }
+
+    const posiciones = [];
+    for (let i = 0; i < poblaciones.length; i++) {
+      if (poblaciones[i] === max) posiciones.push(i + 1);
+    }
+
+    const resumenLista = poblaciones.map((v, i) => `Ciudad #${i + 1}: ${v}`).join(", ");
+
+    let msg;
+    if (posiciones.length === 1) {
+      msg = `La Ciudad #<b>${posiciones[0]}</b> tiene la mayor población: <b>${max}</b>.`;
+    } else {
+      msg = `Empate: mayor población <b>${max}</b> en ciudades <b>#${posiciones.join(", #")}</b>.`;
+    }
+
+    await Swal.fire({
+      icon: "info",
+      html: `
+        ${msg}<br>
+        <small>Lista: ${resumenLista}</small>
+      `
+    });
+
+  } catch (err) {
+    if (err.message !== "Cancelado") showError(err.message);
+  }
+}
+
+async function ejercicio33(){
+  try{
+    let c = 0;
+    while (true) {
+      const { isConfirmed } = await Swal.fire({
+        title: `Iteración #${c + 1}`,
+        text: "¿Deseas continuar?",
+        showCancelButton: true,
+        confirmButtonText: "SI",
+        cancelButtonText: "NO"
+      });
+      if (!isConfirmed) break;
+      c++;
+    }
+    await Swal.fire({ icon:'info', html:`Fin de iteraciones: <b>${c}</b>` });
+  } catch (err) {
+    if (err.message !== "Cancelado") showError(err.message);
+  }
+}
+
+async function ejercicio34(){
+  try{
+    let out = "";
+    for (let n = 1; n <= 9; n++) {
+      out += `Tabla ${n}\n`;
+      for (let k = 1; k <= 10; k++) out += `${n} × ${k} = ${n * k}\n`;
+      out += `\n`;
+    }
+
+    await Swal.fire({
+      title:"Tablas 1–9",
+      input:"textarea",
+      inputValue: out,
+      confirmButtonText:"OK"
+    });
+  } catch (err) {
+    if (err.message !== "Cancelado") showError(err.message);
+  }
+}
+
+async function ejercicio35() {
+  try {
+    const TOTAL = 20;
+    const lista = [];
+
+    while (lista.length < TOTAL) {
+      const index = lista.length + 1;
+      const x = await askNumber({
+        title: "Ejercicio 35",
+        subtitle: "Hacer un algoritmo en Javascript que nos permita saber cuál es el número mayor y menor, se debe ingresar sólo veinte números.",
+        inputLabel: `Número #${index}`,
+      });
+      lista.push(x);
+    }
+
+    let mayor = lista[0];
+    let menor = lista[0];
+    for (let i = 1; i < lista.length; i++) {
+      const v = lista[i];
+      if (v > mayor) mayor = v;
+      if (v < menor) menor = v;
+    }
+
+    const posMayor = [];
+    const posMenor = [];
+    for (let i = 0; i < lista.length; i++) {
+      if (lista[i] === mayor) posMayor.push(i + 1);
+      if (lista[i] === menor) posMenor.push(i + 1);
+    }
+
+    const resumen = lista.map((v, i) => `#${i + 1}: ${v}`).join(", ");
+
+    await Swal.fire({
+      icon: "info",
+      html: `
+        Mayor: <b>${mayor}</b> (posiciones #${posMayor.join(", ")})<br>
+        Menor: <b>${menor}</b> (posiciones #${posMenor.join(", ")})<br>
+        <hr>
+        <small>Lista: ${resumen}</small>
+      `
+    });
+
+  } catch (err) {
+    if (err.message !== "Cancelado") showError(err.message);
+  }
+}
+
+async function ejercicio36() {
+  try {
+    const n = await askNumber({ 
+      title: "Ejercicio 36",
+      subtitle: "Hacer un algoritmo para calcular la serie de Fibonacci.",
+      inputLabel: "Ingresa la cantidad de términos (n ≥ 1):",
+      integer: true, 
+      min: 1
+    });
+
+    let a = 0, b = 1;
+    const seq = [];
+    for (let i = 0; i < n; i++) {
+      seq.push(a);
+      const next = a + b;
+      a = b;
+      b = next;
+    }
+
+    await Swal.fire({icon: "info", html: `Fibonacci (${n}): <b>${seq.join(", ")}</b>`});
+  } catch (err) {
+    if (err.message !== "Cancelado") showError(err.message);
+  }
+}
+
+async function ejercicio37(){
+  try{
+    const enunciado = "Hacer un algoritmo para conseguir el M.C.D de un número por medio del algoritmo de Euclides.!"
+    let A = await askNumber({title: "Ejercicio 37", subtitle: enunciado, inputLabel: "Ingresa el primer número:", integer: true, min: 0});
+    let B = await askNumber({title: "Ejercicio 37", subtitle: enunciado, inputLabel: "Ingresa el segundo número:", integer: true, min: 0});
+
+    if (A === 0 && B === 0) throw new Error("Al menos uno debe ser > 0.");
+
+    while (B !== 0) {
+      const r = A % B;
+      A = B;
+      B = r;
+    }
+
+    await Swal.fire({icon:'info', html:`MCD = <b>${A}</b>`});
+  } catch(err) {
+    if (err.message !== "Cancelado") showError(err.message);
+  }
+}
+
+async function ejercicio38() {
+  try {
+    const N = await askNumber({
+      title: "Ejercicio 38",
+      subtitle: "Hacer un algoritmo que nos permita saber si un número es un número perfecto.",
+      inputLabel: "Ingresa un número entero positivo:",
+      integer: true,
+      min: 1
+    });
+
+    if (N === 1) {
+      await Swal.fire({ icon: "info", html: "1 <b>no</b> es perfecto (no tiene divisores propios positivos)." });
+      return;
+    }
+
+    let sum = 1;
+    const divisores = [1];
+
+    for (let d = 2; d * d <= N; d++) {
+      if (N % d === 0) {
+        sum += d;
+        divisores.push(d);
+        const other = N / d;
+        if (other !== d) {
+          sum += other;
+          divisores.push(other);
+        }
+      }
+    }
+
+    const isPerfect = sum === N;
+
+    divisores.sort((a, b) => a - b);
+
+    await Swal.fire({icon: "info", html: `<b>${N}</b> ${isPerfect ? "es" : "NO es"} un número perfecto.`});
+  } catch (err) {
+    if (err.message !== "Cancelado") showError(err.message);
+  }
+}
+
+async function ejercicio39(){
+  try{
+    const n = await askNumber({
+      title:"Ejercicio 39",
+      subtitle:"Hacer un algoritmo que cumpla con la aproximación del número pi con la serie de Gregory-Leibniz.",
+      inputLabel:"Ingresa el número de iteraciones (n ≥ 1):",
+      integer:true,
+      min:1
+    });
+
+    let sum = 0, sign = 1;
+    for (let k = 0; k < n; k++) {
+      sum += sign * (4 / (2 * k + 1));
+      sign = -sign;
+    }
+
+    await Swal.fire({icon:'info', html:`π ≈ <b>${sum.toFixed(10)}</b> (n=${n})`});
+  } catch (err) {
+    if (err.message !== "Cancelado") showError(err.message);
+  }
+}
+
+async function ejercicio40(){
+  try{
+    const n = await askNumber({
+      title:"Ejercicio 40",
+      subtitle:"Hacer un algoritmo en Javascript que cumpla con la aproximación del número pi con la serie de Nilakantha.",
+      inputLabel:"Ingresa el número de iteraciones (n ≥ 1):",
+      integer:true,
+      min:1
+    });
+
+    let pi = 3;
+    let sign = 1;
+    for (let m = 1; m <= n; m++) {
+      const a = 2*m, b = a+1, c = a+2;
+      pi += sign * (4 / (a*b*c));
+      sign = -sign;
+    }
+
+    await Swal.fire({icon:'info', html:`π ≈ <b>${pi.toFixed(10)}</b> (n=${n})`});
+  } catch (err) {
+    if (err.message !== "Cancelado") showError(err.message);
+  }
+}
 
 //Registrar en window las funciones de los ejercicios para que puedan ser llamadas desde los botones.
 for (let i=1;i<=40;i++){ window['ejercicio'+String(i).padStart(2,'0')] = eval('ejercicio'+String(i).padStart(2,'0')); }
