@@ -737,6 +737,270 @@ async function ejercicio20() {
   }
 }
 
+async function ejercicio21() {
+  try {
+    const n = await askNumber({
+      title: "Ejercicio 21",
+      subtitle: "Hacer un algoritmo que permita calcular el factorial de un número.",
+      inputLabel: "Ingresa un número entero no negativo:",
+      integer: true,
+      min: 0
+    });
+
+    const LIMITE = 250000; //Mientras más grande, más se demora, y con 500000 ya se empieza a poner lento.
+    if (n > LIMITE) {
+      return Swal.fire({
+        icon: "error",
+        title: "Límite excedido",
+        text: `Para evitar bloqueos, ingresa n ≤ ${LIMITE}.`
+      });
+    }
+
+    if (n === 0 || n === 1) {
+      return Swal.fire({ icon: "info", html: `${n}! = <b>1</b>` });
+    }
+
+    let f = 1n;
+    const nn = BigInt(n); //BigInt para mostar números muy grandes.
+    for (let i = 2n; i <= nn; i++) {
+      f *= i;
+    }
+
+    await Swal.fire({icon: "info", html: `${n}! = <b>${f.toString()}</b>`});
+  } catch (err) {
+    if (err.message !== "Cancelado") showError(err.message);
+  }
+}
+
+async function ejercicio22() {
+  try {
+    const n = await askNumber({
+      title: "Ejercicio 22",
+      subtitle: "Hacer un algoritmo para calcular la suma de los n primeros números.",
+      inputLabel: "Ingresa un número entero mayor a 0:",
+      integer: true,
+      min: 1
+    });
+
+    let suma = 0;
+    for (let i = 1; i <= n; i++)
+      suma += i;
+
+    await Swal.fire({icon: "info", html: `Suma desde 1 hasta ${n} = <b>${suma}</b>`});
+  } catch (err) {
+    if (err.message !== "Cancelado") showError(err.message);
+  }
+}
+
+async function ejercicio23() {
+  try {
+    const n = await askNumber({
+      title: "Ejercicio 23",
+      subtitle: "Hacer un algoritmo para calcular la suma de los números impares menores o iguales a n.",
+      inputLabel: "Ingresa un número entero mayor a 0:",
+      integer: true,
+      min: 1
+    });
+
+    const k = (n >> 1) + (n & 1);
+    const suma = k * k;
+
+    await Swal.fire({icon: "info", html: `Suma = <b>${suma}</b>`});
+  } catch (err) {
+    if (err.message !== "Cancelado") showError(err.message);
+  }
+}
+
+async function ejercicio24() {
+  try {
+    let suma = 0;
+    for (let i = 2; i <= 1000; i += 2)
+      suma += i;
+    await Swal.fire({icon:'info', html:`Suma pares ≤1000 = <b>${suma}</b>`});
+  } catch (err) {
+    if (err.message !== "Cancelado") showError(err.message);
+  }
+}
+
+async function ejercicio25(){
+  try{
+    const n = await askNumber({
+      title: "Ejercicio 25",
+      subtitle: "Hacer un algoritmo para calcular el factorial de un número de una forma distinta.",
+      inputLabel: "Ingresa un número entero no negativo:",
+      integer: true,
+      min: 0
+    });
+
+    const LIMITE = 20000;
+    if (n > LIMITE) {
+      return Swal.fire({
+        icon: "error",
+        title: "Límite excedido",
+        text: `Para evitar bloqueos, ingresa n ≤ ${LIMITE}.`
+      });
+    }
+
+    let f = 1n;
+    let i = 2n;
+    const nn = BigInt(n);
+    while (i <= nn) {
+      f *= i;
+      i++;
+    }
+
+    await Swal.fire({icon: "info", html: `${n}! = <b>${f.toString()}</b>`});
+  }catch(err){
+    if (err.message !== "Cancelado") showError(err.message);
+  }
+}
+
+async function ejercicio26() {
+  try {
+    const enunciado = "Hacer un algoritmo para calcular el resto y cociente por medio de restas sucesivas.";
+    let A = await askNumber({ title: "Ejercicio 26", subtitle: enunciado, inputLabel: "Ingresa el dividendo (≥ 0):", integer: true, min: 0 });
+    const B = await askNumber({ title: "Ejercicio 26", subtitle: enunciado, inputLabel: "Ingresa el divisor (≥ 1):", integer: true, min: 1 });
+
+    let q = 0; //cociente
+
+    if (A < B) {
+    } else {
+      while (A >= B) {
+        A -= B;
+        q++;
+      }
+    }
+
+    await Swal.fire({
+      icon: 'info',
+      html: `Cociente: <b>${q}</b><br>Resto: <b>${A}</b>`
+    });
+
+  } catch (err) {
+    if (err.message !== "Cancelado") showError(err.message);
+  }
+}
+
+async function ejercicio27(){
+  try{
+    const arr = await askList({
+      title: "Ejercicio 27",
+      subtitle: "Hacer un algoritmo para determinar la media de una lista indefinida de números positivos, se debe acabar el programa al ingresar un número negativo.",
+      inputLabel: "Inserta los números separados por comas (ej: 1,2,3):",
+    });
+
+    const corte = arr.findIndex(x => x < 0);
+    const antesDeNegativo = (corte === -1) ? arr : arr.slice(0, corte);
+
+    const pos = antesDeNegativo.filter(x => x >= 0);
+
+    if (!pos.length) throw new Error("No hay valores positivos antes del primer negativo.");
+
+    const suma = pos.reduce((a, b) => a + b, 0);
+    const avg  = suma / pos.length;
+
+    await Swal.fire({
+      icon: 'info',
+      html: `Media de positivos = <b>${avg.toFixed(4)}</b> (n=${pos.length})`
+    });
+  }catch(err){
+    if (err.message !== "Cancelado") showError(err.message);
+  }
+}
+
+async function ejercicio27() {
+  try {
+    const lista = [];
+
+    while (true) {
+      const { value } = await Swal.fire({
+        title: "Ejercicio 27",
+        text: "Hacer un algoritmo para determinar la media de una lista indefinida de números positivos, se debe acabar el programa al ingresar un número negativo.",
+        input: "text",
+        inputLabel: "Ingresa un número positivo para continuar o negativo para terminar:",
+        showCancelButton: true,
+        confirmButtonText: "Agregar"
+      });
+      if (value === undefined) throw new Error("Cancelado");
+
+      const n = Number(String(value).trim());
+
+      if (!Number.isFinite(n)) {
+        await Swal.fire({icon: "error", title: "Error", text: "Debes ingresar un número válido."});
+        continue;
+      }
+
+      if (n < 0) {
+
+        break;
+      }
+
+      lista.push(n);
+    }
+
+    if (lista.length === 0) {
+      await Swal.fire({icon: "error", title: "Sin datos", text: "No ingresaste ningún número no negativo."});
+      return;
+    }
+
+    const suma = lista.reduce((a, b) => a + b, 0);
+    const media = suma / lista.length;
+
+    await Swal.fire({
+      icon: "info",
+      html: `
+        Números: <b>${lista.join(", ")}</b><br>
+        Cantidad: <b>${lista.length}</b><br>
+        <hr>
+        Media: <b>${media.toFixed(4)}</b>
+      `
+    });
+  } catch (err) {
+    if (err.message !== "Cancelado") showError(err.message);
+  }
+}
+
+async function ejercicio28() {
+  try {
+    let i = 1;
+    let sum = 0;
+    do {
+      sum += i;
+      i++;
+    } while (!(i > 100));
+
+    await Swal.fire({icon: 'info', html: `Suma del 1 al 100 (repetir) = <b>${sum}</b>`});
+  } catch (err) {
+    if (err.message !== "Cancelado") showError(err.message);
+  }
+}
+
+async function ejercicio29() {
+  try {
+    let i = 1, sum = 0;
+    while (i <= 100) {
+      sum += i;
+      i++;
+    }
+    await Swal.fire({icon:'info', html:`Suma del 1 al 100 (mientras) = <b>${sum}</b>`});
+  } catch (err) {
+    if (err.message !== "Cancelado") showError(err.message);
+  }
+}
+
+async function ejercicio30() {
+  try {
+    let sum = 0;
+    for (let i = 1; i <= 100; i++) {
+      sum += i;
+    }
+    await Swal.fire({icon:'info', html:`Suma del 1 al 100 (para) = <b>${sum}</b>`});
+  } catch (err) {
+    if (err.message !== "Cancelado") showError(err.message);
+  }
+}
+
+
 
 //Registrar en window las funciones de los ejercicios para que puedan ser llamadas desde los botones.
 for (let i=1;i<=40;i++){ window['ejercicio'+String(i).padStart(2,'0')] = eval('ejercicio'+String(i).padStart(2,'0')); }
