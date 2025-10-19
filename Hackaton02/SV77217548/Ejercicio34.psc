@@ -1,0 +1,14 @@
+Proceso Ejercicio34
+	//34. Hacer un algoritmo en Pseint que imprima la tabla de multiplicar de los números del uno al nueve.
+	Definir i, j, producto Como Entero
+	
+    Para i <- 1 Hasta 9 Hacer
+        Escribir "Tabla del ", i
+        Para j <- 1 Hasta 10 Hacer
+            producto <- i * j
+            Escribir i, " x ", j, " = ", producto
+        FinPara
+        Escribir ""
+    FinPara
+	
+FinProceso
