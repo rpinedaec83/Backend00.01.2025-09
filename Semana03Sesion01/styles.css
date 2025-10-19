@@ -1,0 +1,17 @@
+body {
+    background-color: lightblue;
+}
+h1 {
+    color: white;
+    text-align: center;
+}
+.boton-uno{
+    background-color: green ;
+    color: white;
+    border-radius: 10px;
+    border-color: white;
+    padding:  15px;
+    font-size: 15px;
+    cursor: pointer;
+    margin-left: 45%;
+}
