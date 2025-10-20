@@ -621,41 +621,71 @@ function ejercicio26() {
   divisor = parseInt(divisor);
   if (isNaN(divisor)) {
     return alert("Por favor, ingrese un número válido.");
+  }
+  let cociente = 0;
+  let resto = dividendo;
+
+  for (let i = 1; resto >= divisor; i++) {
+    resto = resto - divisor;
+    cociente += 1;
+  }
+
+  alert("el cociente es: " + cociente);
+  alert("El resto es: " + resto);
 }
-    let cociente = 0
-    let resto = dividendo
 
- for ( let i = 1; resto >= divisor; i++){
-    resto = resto - divisor
-    cociente += 1
- }
+function ejercicio27() {
+  let numero = 0;
+  let numMedia = 0;
+  let numTotales = 0;
+  let media = 0;
 
-alert ("el cociente es: "+ cociente)
-alert ("El resto es: " + resto)
-
+  while (numero >= 0) {
+    let numero = prompt("Ingrese número");
+    numero = parseInt(numero);
+    if (numero >= 0) {
+      numMedia += numero;
+      numTotales += 1;
+      media = numMedia / numTotales;
+      console.log(numero);
+      console.log(numMedia);
+      console.log(media);
+    } else {
+      return alert("la media de los números ingresados es: " + media);
+    }
+  }
 }
 
 
-function ejercicio27(){
+function ejercicio28 (){
+    let i = 1;
+let suma = 0;
 
-    let numero = 0
-    let numMedia = 0
-    let numTotales = 0
-    let media = 0
+do {
+  suma += i;
+  i++;
+} while (i <= 100);
 
-    while ( numero >= 0){
-    let numero = prompt("Ingrese número")
-    numero = parseInt(numero)
-        if (numero >= 0){
-            numMedia += numero
-             numTotales += 1
-            media = numMedia / numTotales
-     console.log(numero)
-    console.log(numMedia)
-    console.log(media)
-   } else{
-        return alert ("la media de los números ingresados es: " + media )
-    }
-    }
+ alert("La suma de los primeros 100 números es: " + suma); 
+}
 
+function ejercicio29(){
+let i = 1;
+let suma = 0
+
+while (i<=100){
+    suma += i;
+    i++
+}
+ alert("La suma de los primeros 100 números es: " + suma); 
+}
+
+function ejercicio30(){
+    let i = 1;
+    let suma = 0
+
+for (let i=1; i<=100; i++){
+    suma += i
+}
+alert("La suma de los primeros 100 números es: " + suma); 
 }
