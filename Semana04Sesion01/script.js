@@ -27,3 +27,30 @@ let multiplicacion = (a,b)=>a*b;
 
 
 console.log(multiplicacion(33,44));
+
+let numero =1;
+function contar(){
+    
+    return numero++;
+}
+
+
+console.log(contar());
+console.log(contar());
+console.log(contar());
+console.log(contar());
+
+function mostrarUsuario({nombre, apellido}){
+    return `Hola ${nombre} ${apellido}`
+}
+
+console.log(mostrarUsuario({nombre:"Roberto", apellido:"Pineda"}));
+
+function operar(a, b, fn){
+    return fn(a,b);
+}
+
+
+const resultado = operar(55,42, (x,y)=>x/y);
+
+console.log(resultado)
