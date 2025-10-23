@@ -160,7 +160,7 @@ let ranking = Object.entries(arrResumen)
     .map(([vendedor, total])=>({vendedor, total}))
     .sort((a,b)=>b.total-a.total);
 
-console.log(ranking);
+console.log(JSON.stringify(ranking));
 
 const ventasImpuestos = respuestaBDD
     .filter(v=>v.monto>3000)
