@@ -23,31 +23,30 @@ let salariosPorDepto = arrEmployees.reduce((acc, { dpto, salario }) => {
     acc[dpto].cantidad++;                  // Aumento el contador
     return acc;
 }, {});
+console.log(salariosPorDepto);
 
-// Object.entries(): Convertir resultado a un array,
-// map(): Calcular promedio de cada departamento.
-let promedioPorDepto = Object.entries(salariosPorDepto).map(([dpto, datos]) => ({
+// Object.entries(): Convertir resultado a un array, y usar su método map()
+// map(): Calcular promedio de cada departamento en un nuevo array que tendrá dos atributos: dpto y promedio.
+let promedioPorDepto = Object.entries(salariosPorDepto).map(([dpto, datos]) => ({ //["Desarrollo", { total: 8300, cantidad: 3 }] donde: dpto-> "Desarrollo", datos -> {total: x, cantidad: y}
     dpto,
-    promedio: (datos.total / datos.cantidad).toFixed(2)
+    promedio: (datos.total / datos.cantidad).toFixed(2) // Dos decimales
 }));
-
+console.log("Promedio de sueldos por departamento");
 console.log(promedioPorDepto);
 
 
 // 2. EMPLEADOS CON MÁS DE 5 AÑOS DE EXPERIENCIA
 // filter(): lista solo los empleados con más de 5 años.
 let empleadosConExperiencia = arrEmployees.filter(e => e.años > 5);
-
+console.log("Empleados con más de 5 años de experiencia");
 console.log(empleadosConExperiencia);
-
 
 // 3. RANKING DE SALARIOS (DE MAYOR A MENOR)
 // Copiar el array con el spread operator para no modificar el original.
 // sort(): ordenar
-// map(): numerar cada puesto.
-let rankingSalarios = [...arrEmployees]
-    .sort((a, b) => b.salario - a.salario)   // Ordeno por salario descendente
-    .map((e, i) => ({ puesto: i + 1, nombre: e.nombre, salario: e.salario }));
+let rankingSalarios = [...arrEmployees] //Copiar arrEmployees
+    .sort((a, b) => b.salario - a.salario)   // Ordeno por salario descendente. Si b > a => b va antes; orden descendente por salario
+    //.map((e, i) => ({ puesto: i + 1, nombre: e.nombre, salario: e.salario })); // map(): numerar cada puesto.
 
 console.log(rankingSalarios);
 
@@ -58,7 +57,7 @@ let resultadoJSON = JSON.stringify({
     promedioPorDepto,
     empleadosConExperiencia,
     rankingSalarios
-}, null, 2);
+}, null, 2); // null: no aplicar ningún filtro ni transformación y 2 espacios
 
 console.log("=== RESULTADO FINAL EN FORMATO JSON ===");
 console.log(resultadoJSON);
