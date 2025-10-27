@@ -21,7 +21,7 @@ function saludo(nombre = 'Anonimo') {
 let clima = function (ciudad = 'Lima') {
     console.log(`Este es el clima en la ciudad de ${ciudad}`);
 };
-clima("Quito");
+clima();
 
 let multiplicacion = (a, b) => a * b;
 
@@ -160,7 +160,7 @@ let ranking = Object.entries(arrResumen)
     .map(([vendedor, total])=>({vendedor, total}))
     .sort((a,b)=>b.total-a.total);
 
-console.log(ranking);
+console.log(JSON.stringify(ranking));
 
 const ventasImpuestos = respuestaBDD
     .filter(v=>v.monto>3000)
