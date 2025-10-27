@@ -1,0 +1,938 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hackaton 3</title>
+    <style>
+        body {
+            font-family:Inter,system-ui,Arial;
+            margin:18px;
+            background:#f6f8fa;
+            color:#111
+        }
+        h1 {
+            font-size:20px;
+            margin-bottom:4px
+        }
+        section {
+            background:white;
+            border-radius:8px;
+            padding:12px;
+            margin:12px 0;
+            box-shadow:0 1px 4px rgba(0,0,0,0.06)
+        }
+        label {
+            display:block;
+            margin-top:8px
+        }
+        input [
+            type=text
+            ], 
+        input [
+            type=number
+            ], 
+        select {
+            padding:6px;
+            border-radius:6px;
+            border:1px solid #ddd;
+            width:100%;
+            box-sizing:border-box
+        }
+        button {
+            margin-top:8px;
+            padding:8px 10px;
+            border-radius:6px;
+            border:0;
+            background:#0b5cff;
+            color:white;
+            cursor:pointer
+        }
+        .res {
+            margin-top:8px;
+            padding:8px;
+            background:#f1f5ff;
+            border-radius:6px
+        }
+        .grid {
+            display:grid;
+            grid-template-columns:repeat(auto-fit,minmax(280px,1fr));
+            gap:12px
+        }
+        small {
+            color:#555
+        }
+    </style>
+</head>
+<body>
+    <h1>Colección de ejercicios resueltos en JavaScript</h1>
+    <small>Interfaz rápida: ingresa los valores y presiona el botón correspondiente.</small>
+
+    <!-- Section template: each exercise numbered -->
+
+    <section id="ex1">
+        <strong>1.¿Tiene tres dígitos?</strong>
+        <label>Número: <input id="n1" type="number"></label>
+        <button onclick="tresDigitos()">Verificar</button>
+        <div id="r1" class="res"></div>
+    </section>
+
+    <section id="ex2">
+        <strong>2.¿Negativo?</strong>
+        <label>Número: <input id="n2" type="number"></label>
+        <button onclick="esNegativo()">Verificar</button>
+        <div id="r2" class="res"></div>
+    </section>
+
+    <section id="ex3">
+        <strong>3.¿Termina en 4?</strong>
+        <label>Número: <input id="n3" type="number"></label>
+        <button onclick="terminaEn4()">Verificar</button>
+        <div id="r3" class="res"></div>
+    </section>
+
+    <section id="ex4">
+        <strong>4.Mostrar 3 números de menor a mayor</strong>
+        <div class="grid">
+        <label>A: <input id="a4" type="number"></label>
+        <label>B: <input id="b4" type="number"></label>
+        <label>C: <input id="c4" type="number"></label>
+        </div>
+        <button onclick="ordenar3()">Ordenar</button>
+        <div id="r4" class="res"></div>
+    </section>
+
+    <section id="ex5">
+        <strong>5.Promoción tienda de zapatos</strong>
+        <label>Cantidad de zapatos: <input id="q5" type="number" min="0"></label>
+        <button onclick="promoZapatos()">Calcular</button>
+        <div id="r5" class="res"></div>
+    </section>
+
+    <section id="ex6">
+        <strong>6.Sueldo semanal (horas extras)</strong>
+        <label>Horas trabajadas: <input id="h6" type="number" min="0"></label>
+        <button onclick="sueldoSemanal()">Calcular</button>
+        <div id="r6" class="res"></div>
+    </section>
+
+    <section id="ex7">
+        <strong>7.Descuento por membresía (helados)</strong>
+        <label>Monto de compra ($): <input id="m7" type="number" min="0" step="0.01"></label>
+        <label>Tipo de membresía:
+        <select id="t7"><option value="A">A</option><option value="B">B</option><option value="C">C</option></select>
+        </label>
+        <button onclick="descuentoMembresia()">Calcular</button>
+        <div id="r7" class="res"></div>
+    </section>
+
+
+    <section id="ex8">
+        <strong>8.Promedio 3 notas y aprobación</strong>
+        <div class="grid">
+        <label>Nota 1: <input id="n81" type="number" step="0.01"></label>
+        <label>Nota 2: <input id="n82" type="number" step="0.01"></label>
+        <label>Nota 3: <input id="n83" type="number" step="0.01"></label>
+        </div>
+        <button onclick="promedioNotas()">Calcular</button>
+        <div id="r8" class="res"></div>
+    </section>
+
+
+    <section id="ex9">
+        <strong>9.Aumento según salario</strong>
+        <label>Salario actual ($): <input id="s9" type="number" step="0.01"></label>
+        <button onclick="aumentoTrabajador()">Calcular</button>
+        <div id="r9" class="res"></div>
+    </section>
+
+
+    <section id="ex10">
+        <strong>10.Par o impar</strong>
+        <label>Número: <input id="n10" type="number"></label>
+        <button onclick="parImpar()">Verificar</button>
+        <div id="r10" class="res"></div>
+    </section>
+
+    <section id="ex11">
+        <strong>11.Mayor de tres números</strong>
+        <div class="grid">
+        <label>A: <input id="a11" type="number"></label>
+        <label>B: <input id="b11" type="number"></label>
+        <label>C: <input id="c11" type="number"></label>
+        </div>
+        <button onclick="mayorDeTres()">Encontrar</button>
+        <div id="r11" class="res"></div>
+    </section>
+
+
+    <section id="ex12">
+        <strong>12.Mayor de dos números</strong>
+        <label>A: <input id="a12" type="number"></label>
+        <label>B: <input id="b12" type="number"></label>
+        <button onclick="mayorDeDos()">Encontrar</button>
+        <div id="r12" class="res"></div>
+    </section>
+
+
+    <section id="ex13">
+        <strong>13.Si es vocal</strong>
+        <label>Letra: <input id="l13" type="text" maxlength="1"></label>
+        <button onclick="esVocal()">Verificar</button>
+        <div id="r13" class="res"></div>
+    </section>
+
+
+    <section id="ex14">
+        <strong>14.Es primo</strong>
+        <label>Número entero positivo: <input id="n14" type="number" min="1"></label>
+        <button onclick="esPrimo()">Verificar</button>
+        <div id="r14" class="res"></div>
+    </section>
+
+
+    <section id="ex15">
+        <strong>15.Convertir unidades</strong>
+        <label>Centímetros (cm): <input id="cm15" type="number" step="0.01"></label>
+        <label>Libras (lb): <input id="lb15" type="number" step="0.01"></label>
+        <button onclick="convertir()">Convertir</button>
+        <div id="r15" class="res"></div>
+    </section>
+
+
+    <section id="ex16">
+        <strong>16.Día según número</strong>
+        <label>Número (1-7): <input id="d16" type="number" min="1" max="7"></label>
+        <button onclick="diaSemana()">Mostrar día</button>
+        <div id="r16" class="res"></div>
+    </section>
+
+
+    <section id="ex17">
+        <strong>17.Hora + 1 segundo</strong>
+        <label>Hora (hh:mm:ss): <input id="h17" type="text" placeholder="14:23:59"></label>
+        <button onclick="horaMasUno()">Calcular</button>
+        <div id="r17" class="res"></div>
+    </section>
+
+
+    <section id="ex18">
+        <strong>18.Venta de CDs</strong>
+        <label>Cantidad de CDs: <input id="q18" type="number" min="0"></label>
+        <button onclick="ventaCDs()">Calcular</button>
+        <div id="r18" class="res"></div>
+    </section>
+
+
+    <section id="ex19">
+        <strong>19.Pago empleado heladería</strong>
+        <label>ID empleado: <input id="id19" type="number"></label>
+        <label>Días trabajados (0-6): <input id="dias19" type="number" min="0" max="6"></label>
+        <button onclick="pagoEmpleado()">Calcular</button>
+        <div id="r19" class="res"></div>
+    </section>
+
+
+    <section id="ex20">
+        <strong>20.Operaciones con 4 enteros</strong>
+        <div class="grid">
+        <label>n1: <input id="n201" type="number" min="0"></label>
+        <label>n2: <input id="n202" type="number" min="0"></label>
+        <label>n3: <input id="n203" type="number" min="0"></label>
+        <label>n4: <input id="n204" type="number" min="0"></label>
+        </div>
+        <button onclick="operaciones4()">Ejecutar</button>
+        <div id="r20" class="res"></div>
+    </section>
+
+    <section id="ex21">
+        <strong>21.Factorial (iterativo)</strong>
+        <label>Número: <input id="f21" type="number" min="0"></label>
+        <button onclick="factorialIter()">Calcular</button>
+        <div id="r21" class="res"></div>
+    </section>
+
+
+    <section id="ex22">
+        <strong>22.Suma de los n primeros números</strong>
+        <label>n: <input id="n22" type="number" min="0"></label>
+        <button onclick="sumaN()">Calcular</button>
+        <div id="r22" class="res"></div>
+    </section>
+
+
+    <section id="ex23">
+        <strong>23.Suma números impares ≤ n</strong>
+        <label>n: <input id="n23" type="number" min="0"></label>
+        <button onclick="sumaImpares()">Calcular</button>
+        <div id="r23" class="res"></div>
+    </section>
+
+
+    <section id="ex24">
+        <strong>24.Suma pares hasta 1000</strong>
+        <button onclick="sumaPares1000()">Calcular</button>
+        <div id="r24" class="res"></div>
+    </section>
+
+
+    <section id="ex25">
+        <strong>25.Factorial (recursivo)</strong>
+        <label>Número: <input id="f25" type="number" min="0"></label>
+        <button onclick="factorialRec()">Calcular</button>
+        <div id="r25" class="res"></div>
+    </section>
+
+    <section id="ex26">
+        <strong>26.Cociente y resto por restas sucesivas</strong>
+        <label>Dividendo: <input id="div26" type="number" min="0"></label>
+        <label>Divisor: <input id="d26" type="number" min="1"></label>
+        <button onclick="restasSucesivas()">Calcular</button>
+        <div id="r26" class="res"></div>
+    </section>
+
+
+    <section id="ex27">
+        <strong>27.Media de lista (termina con negativo)</strong>
+        <label>Ingresa números separados por comas (un número negativo para terminar):</label>
+        <input id="arr27" type="text" placeholder="10,4,6,-1">
+        <button onclick="mediaLista()">Calcular</button>
+        <div id="r27" class="res"></div>
+    </section>
+
+
+    <section id="ex28">
+        <strong>28.Suma primeros 100 (repetir)</strong>
+        <button onclick="suma100_repetir()">Calcular</button>
+        <div id="r28" class="res"></div>
+    </section>
+
+
+    <section id="ex29">
+        <strong>29.Suma primeros 100 (mientras)</strong>
+        <button onclick="suma100_mientras()">Calcular</button>
+        <div id="r29" class="res"></div>
+    </section>
+
+
+    <section id="ex30">
+        <strong>30.Suma primeros 100 (for)</strong>
+        <button onclick="suma100_for()">Calcular</button>
+        <div id="r30" class="res"></div>
+    </section>
+
+    <section id="ex31">
+        <label>Ingresa 3 provincias; cada provincia lista 11 ciudades (poblaciones) separadas por ; entre provincias y , entre ciudades:</label>
+        <input id="p32" type="text" placeholder="p1c1,p1c2,...,p1c11; p2c1,...; p3c1,...">
+        <button onclick="ciudadMayorPoblacion()">Calcular</button>
+        <div id="r32" class="res"></div>
+    </section>
+
+    <section id="ex32">
+        <strong>32.Ciudad con mayor población</strong>
+        <label>Ingresa 3 provincias; cada provincia lista 11 ciudades (poblaciones) separadas por ; entre provincias y , entre ciudades:</label>
+        <input id="p32" type="text" placeholder="p1c1,p1c2,...,p1c11; p2c1,...; p3c1,...">
+        <button onclick="ciudadMayorPoblacion()">Calcular</button>
+        <div id="r32" class="res"></div>
+    </section>
+
+    <section id="ex33">
+        <strong>33.Permitirá continuar?</strong>
+        <button onclick="permitirContinuar()">Ejecutar (pregunta confirm)</button>
+        <div id="r33" class="res"></div>
+    </section>
+
+
+    <section id="ex34">
+        <strong>34.Tablas multiplicar 1 al 9</strong>
+        <button onclick="tablas1a9()">Generar</button>
+        <div id="r34" class="res"></div>
+    </section>
+
+
+    <section id="ex35">
+        <strong>35.Mayor y menor (20 números)</strong>
+        <label>Ingresa 20 números separados por comas:</label>
+        <input id="arr35" type="text" placeholder="...">
+        <button onclick="mayorMenor20()">Calcular</button>
+        <div id="r35" class="res"></div>
+    </section>
+
+
+    <section id="ex36">
+        <strong>36.Serie de Fibonacci</strong>
+        <label>Cuántos términos: <input id="f36" type="number" min="1"></label>
+        <button onclick="fibonacciSerie()">Generar</button>
+        <div id="r36" class="res"></div>
+    </section>
+
+
+    <section id="ex37">
+        <strong>37.MCD (Euclides)</strong>
+        <label>A: <input id="m37a" type="number" min="0"></label>
+        <label>B: <input id="m37b" type="number" min="0"></label>
+        <button onclick="mcdEuclides()">Calcular</button>
+        <div id="r37" class="res"></div>
+    </section>
+
+    <section id="ex38">
+        <strong>38.Número perfecto</strong>
+        <label>Número: <input id="p38" type="number" min="1"></label>
+        <button onclick="esPerfecto()">Verificar</button>
+        <div id="r38" class="res"></div>
+    </section>
+
+
+    <section id="ex39">
+        <strong>39.Aproximación de pi - Gregory-Leibniz</strong>
+        <label>Términos a sumar: <input id="g39" type="number" min="1"></label>
+        <button onclick="piGregory()">Calcular</button>
+        <div id="r39" class="res"></div>
+    </section>
+
+
+    <section id="ex40">
+        <strong>40.Aproximación de pi - Nilakantha</strong>
+        <label>Términos a sumar: <input id="n40" type="number" min="1"></label>
+        <button onclick="piNilakantha()">Calcular</button>
+        <div id="r40" class="res"></div>
+    </section>
+
+    <Script>
+        // 1
+        function tresDigitos(){
+            const n=Number(document.getElementById('n1').value);
+            const abs=Math.abs(n);
+            const ok = (abs>=100 && abs<=999);
+
+            document.getElementById('r1').textContent = ok? 'Sí, tiene tres dígitos.' : 'No tiene tres dígitos.';
+        }
+
+        // 2
+        function esNegativo(){ 
+            const n=Number(document.getElementById('n2').value); 
+
+            document.getElementById('r2').textContent = n<0? 'Negativo' : 'No es negativo'; 
+        }
+
+        // 3
+        function terminaEn4(){ 
+            const n=Number(document.getElementById('n3').value); 
+            const last=Math.abs(n)%10; 
+
+            document.getElementById('r3').textContent = (last===4)? 'Sí termina en 4' : 'No termina en 4'; 
+        }
+
+        //4
+        function ordenar3(){ 
+            const a=Number(document.getElementById('a4').value); 
+            const b=Number(document.getElementById('b4').value); 
+            const c=Number(document.getElementById('c4').value); 
+            const arr=[a,b,c].sort((x,y)=>x-y); 
+            
+            document.getElementById('r4').textContent = arr.join(' < '); 
+        }
+
+        //5
+        function promoZapatos(){ 
+            const q=Number(document.getElementById('q5').value); 
+            const price=80; 
+            let discount=0; 
+            
+            if(q>30) discount=0.40; 
+            else if(q>20) discount=0.20; 
+            else if(q>10) discount=0.10; 
+            
+            const total=q*price; 
+            const final= total * (1-discount); 
+            
+            document.getElementById('r5').innerHTML = `Total: $${total.toFixed(2)} — Descuento: ${discount*100}% — A pagar: $${final.toFixed(2)}`; 
+        }
+
+        //6
+        function sueldoSemanal(){  
+            const h=Number(document.getElementById('h6').value); 
+            const baseRate=20; 
+            const extraRate=25; 
+            let sueldo=0; 
+            
+            if(h<=40) sueldo=h*baseRate;
+            else sueldo=40*baseRate + (h-40)*extraRate; 
+            
+            document.getElementById('r6').textContent = `Sueldo: $${sueldo.toFixed(2)}`; 
+        }
+
+        //7
+        function descuentoMembresia(){ 
+            const m=Number(document.getElementById('m7').value); 
+            const t=document.getElementById('t7').value; 
+            const map={A:0.10,B:0.15,C:0.20}; 
+            const d=map[t]||0; 
+            const final=m*(1-d); 
+            
+            document.getElementById('r7').textContent = `Descuento ${d*100}% -> Pagar: $${final.toFixed(2)}`; 
+        }
+
+        //8
+        function promedioNotas(){ 
+            const n1=Number(document.getElementById('n81').value); 
+            const n2=Number(document.getElementById('n82').value); 
+            const n3=Number(document.getElementById('n83').value); 
+            const avg=(n1+n2+n3)/3; 
+            const aprobado= avg>=60 ? 'Aprobado' : 'Reprobado'; 
+            
+            document.getElementById('r8').textContent = `Promedio: ${avg.toFixed(2)} — ${aprobado}`; 
+        }
+
+        //9
+        function aumentoTrabajador(){ 
+            const s=Number(document.getElementById('s9').value); 
+            const inc = s>2000 ? 0.05 : 0.10; 
+            const nuevo = s*(1+inc); 
+            
+            document.getElementById('r9').textContent = `Aumento: ${inc*100}% — Nuevo salario: $${nuevo.toFixed(2)}`; 
+        }
+
+        //10
+        function parImpar(){ 
+            const n=Number(document.getElementById('n10').value); 
+            
+            document.getElementById('r10').textContent = (n%2===0)? 'Par' : 'Impar'; 
+        }
+
+        //11
+        function mayorDeTres(){ 
+            const a=Number(document.getElementById('a11').value); 
+            const b=Number(document.getElementById('b11').value); 
+            const c=Number(document.getElementById('c11').value); 
+            const m=Math.max(a,b,c); 
+            
+            document.getElementById('r11').textContent = `Mayor: ${m}`; 
+        }
+
+        //12
+        function mayorDeDos(){ 
+            const a=Number(document.getElementById('a12').value); 
+            const b=Number(document.getElementById('b12').value); 
+            
+            document.getElementById('r12').textContent = (a===b)? 'Iguales' : `Mayor: ${a>b? a: b}`; 
+        }
+
+        //13
+        function esVocal(){ 
+            const l=document.getElementById('l13').value.trim().toLowerCase(); 
+            const es='aeiou'.includes(l); 
+            
+            document.getElementById('r13').textContent = es? 'Es vocal' : 'No es vocal'; 
+        }
+
+        //14
+        function esPrimo(){ 
+            let n=Number(document.getElementById('n14').value); 
+            
+            if(n<=1){ 
+                document.getElementById('r14').textContent='No es primo'; 
+                return;
+            } if(n<=3){ 
+                document.getElementById('r14').textContent='Es primo'; 
+                return;
+            } if(n%2===0){ 
+                document.getElementById('r14').textContent='No es primo'; 
+                return;
+            } 
+            
+            let limit=Math.floor(Math.sqrt(n)); 
+            
+            for(let i=3;i<=limit;i+=2) 
+            if(n%i===0){ 
+                document.getElementById('r14').textContent='No es primo'; 
+                return;
+            } 
+            
+            document.getElementById('r14').textContent='Es primo'; 
+        }
+
+        //15
+        function convertir(){ 
+            const cm=Number(document.getElementById('cm15').value); 
+            const lb=Number(document.getElementById('lb15').value); 
+            const pulgadas = cm/2.54; 
+            const kg = lb*0.45359237; 
+            
+            document.getElementById('r15').innerHTML = `${cm} cm = ${pulgadas.toFixed(4)} pulgadas<br>${lb} lb = ${kg.toFixed(4)} kg`; 
+        }
+
+        //16
+        function diaSemana(){ 
+            const n=Number(document.getElementById('d16').value); 
+            const dias=['Lunes','Martes','Miércoles','Jueves','Viernes','Sábado','Domingo']; 
+            
+            document.getElementById('r16').textContent = (n>=1 && n<=7)? dias[n-1] : 'Número fuera de rango (1-7)'; 
+        }
+
+        //17
+        function horaMasUno(){ 
+            const raw=document.getElementById('h17').value.trim(); 
+            const parts=raw.split(':').map(x=>Number(x)); 
+            
+            if(parts.length!==3 || parts.some(isNaN)){ 
+                document.getElementById('r17').textContent='Formato inválido. Usa hh:mm:ss'; 
+                return;
+            } 
+            
+            let [hh,mm,ss]=parts; ss++; 
+            if(ss>=60){ ss-=60; mm++; } 
+            if(mm>=60){ mm-=60; hh++; } 
+            if(hh>=24){ hh-=24; } 
+            
+            const pad=(n)=>String(n).padStart(2,'0'); 
+            
+            document.getElementById('r17').textContent = `${pad(hh)}:${pad(mm)}:${pad(ss)}`; 
+        }
+
+        //18
+        function ventaCDs(){ 
+            const q=Number(document.getElementById('q18').value); 
+            let price=10; 
+            
+            if(q>=10 && q<=99) price=8; 
+            else if(q>=100 && q<=499) price=7; 
+            else if(q>=500) price=6; 
+            
+            const total=q*price; 
+            const ganancia = total*0.0825; 
+            
+            document.getElementById('r18').innerHTML = `Precio unitario: $${price} — Total: $${total.toFixed(2)} — Ganancia: $${ganancia.toFixed(2)}`; 
+        }
+
+        //19
+        function pagoEmpleado(){ 
+            const id=Number(document.getElementById('id19').value); 
+            const dias=Number(document.getElementById('dias19').value); 
+            const salarios = {1:56,2:64,3:80,4:48}; 
+            const daily = salarios[id]; 
+            
+            if(!daily){ 
+                document.getElementById('r19').textContent='ID inválido (usar 1..4)'; 
+                return;
+            } if(dias<0||dias>6){ 
+                document.getElementById('r19').textContent='Días fuera de rango (0-6)'; 
+                return;
+            } 
+            
+            const total=daily*dias; 
+            
+            document.getElementById('r19').textContent = `Empleado ID ${id} — Pago: $${total.toFixed(2)}`; 
+        }
+
+        //20
+        function operaciones4(){ 
+            const n1=Number(document.getElementById('n201').value); 
+            const n2=Number(document.getElementById('n202').value); 
+            const n3=Number(document.getElementById('n203').value); 
+            const n4=Number(document.getElementById('n204').value); 
+            let res='';
+
+            const pares = [n1,n2,n3,n4].filter(x=>x%2===0).length; 
+            res += `Pares: ${pares}\n`;
+
+            const mayor = Math.max(n1,n2,n3,n4); 
+            res += `Mayor de todos: ${mayor}\n`;
+
+            if(n3%2===0){ 
+                res += `Tercero es par -> segundo al cuadrado: ${Math.pow(n2,2)}\n`; 
+            }
+
+            if(n1<n4){ 
+                res += `Primero < cuarto -> media: ${(n1+n2+n3+n4)/4}\n`; 
+            }
+
+            if(n2>n3){ 
+                if(n3>=50 && n3<=700){ 
+                    res += `Segundo > tercero y tercero entre 50 y 700 -> suma total: ${n1+n2+n3+n4}\n`; 
+                } else { 
+                    res += `Segundo > tercero pero tercero NO está entre 50 y 700\n`; 
+                } 
+            }
+
+            document.getElementById('r20').innerText = res;
+        }
+
+        //21
+        function factorialIter(){ 
+            const n=Number(document.getElementById('f21').value); 
+            
+            if(n<0){ 
+                document.getElementById('r21').textContent='No definido para negativos'; 
+                return;
+            } 
+            
+            let res=1; 
+            
+            for(let i=2;i<=n;i++) res*=i; 
+            
+            document.getElementById('r21').textContent = `Factorial(${n}) = ${res}`; 
+        }
+
+        //22
+        function sumaN(){ 
+            const n=Number(document.getElementById('n22').value); 
+            const sum = n*(n+1)/2; 
+            
+            document.getElementById('r22').textContent = `Suma: ${sum}`; 
+        }
+
+        //23
+        function sumaImpares(){ 
+            const n=Number(document.getElementById('n23').value); 
+            let sum=0; 
+            
+            for(let i=1;i<=n;i+=2) sum+=i; 
+            
+            document.getElementById('r23').textContent = `Suma impares ≤ ${n}: ${sum}`; 
+        }
+
+        //24
+        function sumaPares1000(){ 
+            let sum=0; 
+            
+            for(let i=0;i<=1000;i+=2) sum+=i; 
+            
+            document.getElementById('r24').textContent = `Suma pares hasta 1000: ${sum}`; 
+        }
+
+        //25
+        function factorialRec(){ 
+            const n=Number(document.getElementById('f25').value); 
+            
+            if(n<0){ 
+                document.getElementById('r25').textContent='No definido'; 
+                return;
+            } 
+            
+            function f(x){ return x<=1?1:x*f(x-1);} 
+            
+            document.getElementById('r25').textContent = `Factorial(${n}) = ${f(n)}`; 
+        }
+
+        //26
+        function restasSucesivas(){ 
+            let div=Number(document.getElementById('div26').value); 
+            const d=Number(document.getElementById('d26').value); 
+            
+            if(d===0){ 
+                document.getElementById('r26').textContent='Divisor 0 inválido'; 
+                return;
+            } 
+            
+            let coc=0; 
+            
+            while(div>=d){ 
+                div-=d; coc++; 
+            } 
+            
+            document.getElementById('r26').textContent = `Cociente: ${coc} — Resto: ${div}`; 
+        }
+
+        //27
+        function mediaLista(){ 
+            const raw=document.getElementById('arr27').value; 
+            const arr=raw.split(',').map(x=>Number(x.trim())).filter(x=>!isNaN(x)); 
+            let sum=0,count=0; 
+            
+            for(const v of arr){ 
+                if(v<0) 
+                break; sum+=v; count++; 
+            } if(count===0){ 
+                document.getElementById('r27').textContent='No se ingresó ningún número positivo'; 
+                return;
+            } 
+            
+            document.getElementById('r27').textContent = `Media: ${(sum/count).toFixed(4)} (con ${count} valores)`; 
+        }
+
+        //28
+        function suma100_repetir(){ 
+            let i=1,sum=0; 
+            
+            do{ 
+                sum+=i; i++; 
+            }while(i<=100); 
+            
+            document.getElementById('r28').textContent = `Suma: ${sum}`; 
+        }
+
+        //29
+        function suma100_mientras(){ 
+            let i=1,sum=0; 
+            
+            while(i<=100){ sum+=i; i++; } 
+            document.getElementById('r29').textContent = `Suma: ${sum}`; 
+        }
+
+        //30 for
+        function suma100_for(){ 
+            let sum=0; 
+            
+            for(let i=1;i<=100;i++) sum+=i; 
+            
+            document.getElementById('r30').textContent = `Suma: ${sum}`; 
+        }
+
+        //31
+        function mediaParesImpares(){ 
+            const arr=document.getElementById('arr31').value.split(',').map(x=>Number(x.trim())).filter(x=>!isNaN(x)); 
+            
+            if(arr.length!==10){ 
+                document.getElementById('r31').textContent = 'Necesitas exactamente 10 números'; 
+                return;
+            } 
+            
+            let sumP=0,countP=0,sumI=0,countI=0; 
+            
+            for(const v of arr){ 
+                if(v%2===0){ sumP+=v; countP++; } 
+                else { sumI+=v; countI++; } 
+            } 
+            
+            document.getElementById('r31').innerHTML = `Media pares: ${countP? (sumP/countP).toFixed(4):'N/A'}<br>Media impares: ${countI? (sumI/countI).toFixed(4):'N/A'}`; 
+        }
+
+        //32
+        function ciudadMayorPoblacion(){ 
+            const raw=document.getElementById('p32').value; 
+            
+            if(!raw.includes(';')){ 
+                document.getElementById('r32').textContent='Formato incorrecto'; 
+                return;
+            } 
+            
+            const provincias = raw.split(';').map(p=>p.trim()); 
+            
+            if(provincias.length<3){ 
+                document.getElementById('r32').textContent='Se esperan 3 provincias separadas por ;'; 
+                return;
+            } 
+            
+            let mayor= -Infinity; let info=''; 
+            provincias.forEach((p,pi)=>{ 
+                const ciudades = p.split(',').map(x=>Number(x.trim())).filter(x=>!isNaN(x)); 
+                ciudades.forEach((pop,ci)=>{ if(pop>mayor){ mayor=pop; info = `Provincia ${pi+1} - Ciudad ${ci+1} => Población: ${pop}`; } }); 
+            }); 
+            
+            document.getElementById('r32').textContent = info||'No hay datos válidos'; 
+        }
+
+        //33
+        function permitirContinuar(){ 
+            const ok = confirm('¿Deseas continuar con el programa?'); 
+            
+            document.getElementById('r33').textContent = ok? 'Usuario eligió continuar' : 'Usuario eligió NO continuar'; 
+        }
+
+        //34
+        function tablas1a9(){ 
+            let out=''; 
+            
+            for(let n=1;n<=9;n++){ 
+                out+=`Tabla del ${n}:\n`; 
+                for(let i=1;i<=10;i++){ 
+                    out+=`${n} x ${i} = ${n*i}\n`; 
+                } out+='\n'; 
+            } 
+            
+            document.getElementById('r34').innerText = out; 
+        }
+
+        //35
+        function mayorMenor20(){ 
+            const arr=document.getElementById('arr35').value.split(',').map(x=>Number(x.trim())).filter(x=>!isNaN(x)); 
+            if(arr.length!==20){ 
+                document.getElementById('r35').textContent='Se requieren 20 números'; 
+                return;
+            } 
+            
+            const mayor=Math.max(...arr); 
+            const menor=Math.min(...arr); 
+            
+            document.getElementById('r35').textContent = `Mayor: ${mayor} — Menor: ${menor}`; 
+        }
+
+        //36
+        function fibonacciSerie(){ 
+            const n=Number(document.getElementById('f36').value); 
+            
+            if(n<=0){
+                document.getElementById('r36').textContent='n debe ser >=1'; 
+                return;
+            } 
+            
+            const seq=[]; 
+            
+            for(let i=0;i<n;i++){ 
+                if(i<2) seq.push(i); 
+                else seq.push(seq[i-1]+seq[i-2]); 
+            } 
+            
+            document.getElementById('r36').textContent = seq.join(', '); 
+        }
+
+        //37
+        function mcdEuclides(){ 
+            let a=Math.abs(Number(document.getElementById('m37a').value)); 
+            let b=Math.abs(Number(document.getElementById('m37b').value)); 
+            
+            if(a===0 && b===0){ 
+                document.getElementById('r37').textContent='MCD indefinido (0,0)'; 
+                return;
+            } 
+            
+            while(b!==0){ const t=a%b; a=b; b=t; } 
+            
+            document.getElementById('r37').textContent = `MCD: ${a}`; 
+        }
+
+        //38
+        function esPerfecto(){ 
+            const n=Number(document.getElementById('p38').value); 
+            
+            if(n<=0){ document.getElementById('r38').textContent='Ingrese un entero positivo'; return;} 
+            
+            let sum=0; 
+            
+            for(let i=1;i<=n/2;i++) 
+            
+            if(n%i===0) sum+=i; document.getElementById('r38').textContent = (sum===n)? 'Es perfecto' : `No es perfecto (suma divisores: ${sum})`; 
+        }
+
+        //39
+        function piGregory(){ 
+            const terms=Number(document.getElementById('g39').value); 
+            let pi=0; 
+            
+            for(let k=0;k<terms;k++){ 
+                pi += (k%2===0?1:-1)*(4/(2*k+1)); 
+            } 
+            
+            document.getElementById('r39').textContent = `Aproximación (GL) con ${terms} términos: ${pi}`; 
+        }
+
+        //40
+        function piNilakantha(){ 
+            const terms=Number(document.getElementById('n40').value); 
+            let pi=3; 
+            let sign=1; 
+            let a=2; 
+            
+            for(let k=0;k<terms;k++){ 
+                const term = 4/(a*(a+1)*(a+2)); 
+                pi += sign*term; 
+                sign *= -1; a += 2; 
+            } 
+            
+            document.getElementById('r40').textContent = `Aproximación (Nilakantha) con ${terms} términos: ${pi}`; 
+        }
+    </Script>
+
+</body>
+</html>

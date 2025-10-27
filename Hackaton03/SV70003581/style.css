@@ -1,0 +1,8 @@
+body.p-3{ /*La clase p-3 es utilidad de espaciado propia de Bootstrap*/
+    background-color: azure;
+    color: gray;
+}
+
+h1 {
+    text-align: center;
+}
