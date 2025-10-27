@@ -21,7 +21,7 @@ function saludo(nombre = 'Anonimo') {
 let clima = function (ciudad = 'Lima') {
     console.log(`Este es el clima en la ciudad de ${ciudad}`);
 };
-clima("Quito");
+clima();
 
 let multiplicacion = (a, b) => a * b;
 
