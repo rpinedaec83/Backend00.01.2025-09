@@ -67,12 +67,34 @@ class Persona{
     }
 }
 
-let objPersona = new Persona("123515","Roberto","Pineda", "Lima", 916730940);
+// let objPersona = new Persona("123515","Roberto","Pineda", "Lima", 916730940);
 
-objPersona.login();
+// objPersona.login();
 
-objPersona.login();
+// objPersona.login();
 
-objPersona.logout();
+// objPersona.logout();
 
-objPersona.login();
+// objPersona.login();
+
+class Empleado extends Persona{
+    constructor(dni, nombre, apellidos,direccion, telefono, idEmpleado){
+        super(dni, nombre, apellidos,direccion, telefono);
+        this.idEmpleado = idEmpleado;
+    }
+    cobrar(cliente, medioPago, monto){
+        console.log(`El cliente ${cliente.nombre} ${cliente.apellidos} esta pagando ${monto} con ${medioPago}`);
+    }
+}
+
+class Cliente extends Persona{
+    constructor(dni, nombre, apellidos,direccion, telefono, idCliente){
+        super(dni, nombre, apellidos,direccion, telefono);
+        this.idCliente = idCliente;
+    }
+    pagar(medioPago){
+        console.log(`El cliente ${this.nombre} ${this.apellidos} esta pagando con ${medioPago}`);
+    }
+
+}
+
