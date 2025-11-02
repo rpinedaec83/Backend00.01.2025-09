@@ -4,7 +4,7 @@
  * Listen los empleados con + 5 años de experiencia
  * Ranking de salarios de mayor a menor 
  * Convertir el resultado en string de JSON 
- */
+**/
 
 //Array de 10 empleados 
 const listaEmpleados = [
@@ -77,3 +77,4 @@ let resultadoJson = JSON.stringify(resultadoFinal, null, 2);
 
 console.log("Resultado final en formato JSON:");
 console.log(resultadoJson);
+
