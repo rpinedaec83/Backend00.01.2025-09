@@ -122,6 +122,11 @@ class Tecnico{
        this.habilidades.push(...habilidades);
        //console.log("HABILIDADES AGREGADAS");
     }
+    restarTareaLocal(ticket){
+        let tareasAct = (this.tareas.filter(tarea => tarea !== ticket));
+        this.tareas = [];
+        this.tareas.push(tareasAct);
+    }
 }
 
 class Cliente{
@@ -267,6 +272,9 @@ cliente01.autorizarServicio(ticket01,cotizacion02);
 //Técnico entrega dispositivo reparado al cliente y cierra el Ticket
 ticket01.actualizarEstadoTicket("Se entregó el dispositivo operativo al cliente");
 ticket01.cerrarTicket();
+
+//Sucursal resta Tarea a Técnico
+tecnico01.restarTareaLocal(ticket01);
 
 console.log(ticket01);
 console.log(sucursal01);
