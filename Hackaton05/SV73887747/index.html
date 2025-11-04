@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hackaton 05</title>
+    <script src="https://kit.fontawesome.com/e59191e4cc.js" crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css"
+        integrity="sha384-xOolHFLEh07PJGoPkLv1IbcEPTNtaed2xpHsD9ESMhqIYd0nLMwNLD69Npy4HI+N" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+    <style>
+        body { padding: 20px; }
+        #divReparacion { display: none; }
+    </style>
+</head>
+<body>
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-md-12">
+                <div class="jumbotron">
+                    <h1 id="txtSucursal"></h1>
+                    <p>
+                        <a href="#" class="btn btn-primary btn-large" id="btnIniciarReparacion">Iniciar Reparación</a>
+                    </p>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div id="divReparacion" class="col-md-12">
+                <h2>Detalles de la Reparación</h2>
+                <table class="table table-bordered">
+                    <tr>
+                        <td><label>Cliente Nombres</label></td>
+                        <td><input type="text" id="clienteNombres" disabled></td>
+                    </tr>
+                    <tr>
+                        <td><label>Cliente Apellidos</label></td>
+                        <td><input type="text" id="clienteApellidos" disabled></td>
+                    </tr>
+                    <tr>
+                        <td><label>Teléfono Marca</label></td>
+                        <td><input type="text" id="telefonoMarca" disabled></td>
+                    </tr>
+                    <tr>
+                        <td><label>Teléfono Modelo</label></td>
+                        <td><input type="text" id="telefonoModelo" disabled></td>
+                    </tr>
+                    <tr>
+                        <td><label>Número de Serie</label></td>
+                        <td><input type="text" id="telefonoSerie" disabled></td>
+                    </tr>
+                    <tr>
+                        <td><label>IMEI</label></td>
+                        <td><input type="text" id="telefonoIMEI" disabled></td>
+                    </tr>
+                    <tr>
+                        <td><label>Diagnóstico Inicial</label></td>
+                        <td><input type="text" id="diagnosticoInicial" disabled></td>
+                    </tr>
+                    <tr>
+                        <td><label>Autorización</label></td>
+                        <td><input type="text" id="autorizacion" disabled value="Sí"></td>
+                    </tr>
+                    <tr>
+                        <td><label>Abono (50%)</label></td>
+                        <td><input type="text" id="abono" disabled></td>
+                    </tr>
+                    <tr>
+                        <td><label>Técnico Asignado</label></td>
+                        <td><input type="text" id="tecnicoNombre" disabled></td>
+                    </tr>
+                    <tr>
+                        <td><label>Repuestos Agregados</label></td>
+                        <td><input type="text" id="repuestos" disabled></td>
+                    </tr>
+                    <tr>
+                        <td><label>Estado Actual</label></td>
+                        <td><input type="text" id="estado" disabled></td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="script.js"></script>
+    <script>
+        const objParametros = {
+            sucursal: "Sucursal Principal - Lima"
+        };
+        Reparacion.init(objParametros);
+    </script>
+</body>
+</html>
