@@ -238,6 +238,86 @@ class Reparacion{
 Reparacion.estaciones = ["Recepción", "Diagnóstico", "Autorizado", "En reparación", "Calidad", "Listo", "Entregado"];
 Reparacion.seq = 1;
 
+// Seccion de almacenamiento SessionStorage y LocalStoragr
+const LS_KEYS = {
+    REPARACIONES: (dni) => `ls_usuario:${dni}_reparaciones`,
+};
+
+const SS_KEYS = {
+    SESSION: 'ls_session'
+};
+
+// Funciones para agregar obtener y quitar data del local y session storage.
+function lsSet(k, v){
+    localStorage.setItem(k, JSON.stringify(v));
+}
+
+function lsGet(k){
+    const s = localStorage.getItem(k);
+    return s ? JSON.parse(s) : null;
+}
+
+function lsRemove(k){
+    localStorage.removeItem(k);
+}
+
+function ssSet(k, v){
+    sessionStorage.setItem(k, JSON.stringify(v));
+}
+
+function ssGet(k){
+    const s = sessionStorage.getItem(k);
+    return s ? JSON.parse(s) : null;
+}
+
+function ssRemove(k){
+    sessionStorage.removeItem(k);
+}
+
+// Funciones para convertir a texto plano y leer desde texto plano
+function repToPlain(r){
+  return {
+    id: r.id,
+    sucursal: r.sucursal,
+    cliente: {dni: r.cliente.dni, nombres: r.cliente.nombres, apellidos: r.cliente.apellidos},
+    telefono: {serie: r.telefono.serie, imei: r.telefono.imei, marca: r.telefono.marca, modelo: r.telefono.modelo, so: r.telefono.so},
+    tecnico: r.tecnico ? {idEmpleado: r.tecnico.idEmpleado, nombres: r.tecnico.nombres, apellidos: r.tecnico.apellidos, sucursal: r.tecnico.sucursal, skills: r.tecnico.skills} : null,
+    estado: r.estado,
+    historial: (r.historial || []).map(h => ({estado: h.estado, ts: (h.ts instanceof Date ? h.ts.toISOString() : h.ts)})),
+    diag: r.diag,
+    autorizado: r.autorizado,
+    deposito: r.deposito,
+    repuestos: (r.repuestos || []).map(p => ({nombre: p.nombre, costo: p.costo}))
+  };
+}
+
+function repFromPlain(o){
+  const cli = new Cliente(o.cliente.dni, o.cliente.nombres, o.cliente.apellidos);
+  const tel = new Telefono(o.telefono);
+  const r = new Reparacion({ cliente: cli, telefono: tel, sucursal: o.sucursal });
+  r.id = o.id;
+  r.tecnico = o.tecnico ? new Tecnico(o.tecnico) : null;
+  r.estado = o.estado;
+  r.historial = (o.historial || []).map(h => ({ estado: h.estado, ts: new Date(h.ts) }));
+  r.diag = o.diag;
+  r.autorizado = !!o.autorizado;
+  r.deposito = Number(o.deposito)||0;
+  r.repuestos = (o.repuestos || []).map(p => new Repuesto(p.nombre, Number(p.costo)||0));
+  return r;
+}
+
+function recomputarSecuencia(arr){
+    const maxId = arr.reduce((m, r) => Math.max(m, parseInt(r.id,10)||0), 0);
+    Reparacion.seq = (maxId||0) + 1;
+}
+
+// Emitir eventos
+function emitir(tipo, detalle){
+    document.dispatchEvent(
+        new CustomEvent(tipo, {detail: detalle})
+    );
+}
+
 // modulo principal
 const Taller = (function(){
     let sucursales = [];
@@ -269,6 +349,29 @@ const Taller = (function(){
             body.appendChild(tr);
         });
     };
+
+    function userKey(){
+        return usuarioActual ? LS_KEYS.REPARACIONES(usuarioActual.dni) : null;
+    }
+    
+    function persistirReparaciones(){
+        const K = userKey();
+        if (!K) return;
+        lsSet(K, reparaciones.map(repToPlain));
+    }
+
+    function cargarReparaciones(){
+        const K = userKey();
+        if (!K){
+            reparaciones = [];
+            rehacerTabla();
+            return;
+        }
+        const data = lsGet(K, []);
+        reparaciones = data.map(repFromPlain);
+        recomputarSecuencia(reparaciones);
+        rehacerTabla();
+    }
 
     const idAcciones = ["btnIngresar", "btnDiagnostico", "btnAutorizar", "btnAsignarTecnico", "btnRepuesto", "btnAvanzar", "btnPagado", "btnVerHistorial"];
 
@@ -335,13 +438,18 @@ const Taller = (function(){
                 return `${this.nombres} ${this.apellidos}`.trim();
             }
         };
+        ssSet(SS_KEYS.SESSION, {dni: usuarioActual.dni, nombres: usuarioActual.nombres, apellidos: usuarioActual.apellidos});
         updateSessionUI();
         toggleAcciones(false);
+        cargarReparaciones();
         await Swal.fire("Bienvenido", `Hola, ${usuarioActual.nombreCompleto}`, "success");
     }
 
     async function logout(){
         usuarioActual = null;
+        ssRemove(SS_KEYS.SESSION);
+        reparaciones = [];
+        rehacerTabla();
         updateSessionUI();
         toggleAcciones(true);
         await Swal.fire("Sesión cerrada","","success");
@@ -476,6 +584,7 @@ const Taller = (function(){
             equipo.validarNoReportado();
             const rep = new Reparacion({cliente, telefono:equipo, sucursal:form.suc});
             reparaciones.push(rep);
+            persistirReparaciones();
             const suc = getSucursal(form.suc); if(suc) suc.agregarReparacion(rep);
             await Swal.fire("OK","Equipo ingresado en Recepción","success");
             rehacerTabla();
@@ -558,6 +667,7 @@ const Taller = (function(){
         }
 
         rep.asignarTecnico(tec);
+        persistirReparaciones();
         await Swal.fire("OK", `Asignado a: ${tec.nombreCompleto}`, "success");
         rehacerTabla();
     }
@@ -584,6 +694,7 @@ const Taller = (function(){
 
         try{
             rep.registrarDiagnostico({descripcion:form.desc, manoObra:form.mo, estPartes:form.ep});
+            persistirReparaciones();
             await Swal.fire("OK","Diagnóstico registrado","success");
             rehacerTabla();
         }
@@ -614,6 +725,7 @@ const Taller = (function(){
 
         try{
             rep.autorizar({tieneCarta:form.auth, deposito:form.dep});
+            persistirReparaciones();
             await Swal.fire("OK","Autorizado y depósito registrado","success");
             rehacerTabla();
         }
@@ -639,6 +751,7 @@ const Taller = (function(){
 
         try{
             rep.agregarRepuesto(new Repuesto(form.nom, form.cos));
+            persistirReparaciones();
             await Swal.fire("OK","Repuesto agregado","success");
             rehacerTabla();
         }
@@ -651,6 +764,7 @@ const Taller = (function(){
         if(!requireTecnico(rep)) return;
         try{
             rep.avanzar();
+            persistirReparaciones();
             await Swal.fire("OK", `Avanzó a: ${rep.estado}`, "success");
             rehacerTabla();
         }catch(err){await Swal.fire("No se puede avanzar", err.message, "error");}
@@ -687,6 +801,7 @@ const Taller = (function(){
         if (!res.isConfirmed) return;
 
         rep.pagarSaldoPendiente();
+        persistirReparaciones();
         await Swal.fire("OK", "Pago registrado correctamente.", "success");
         rehacerTabla();
     }
@@ -724,10 +839,24 @@ const Taller = (function(){
             document.getElementById("btnAvanzar").addEventListener("click", avanzarEstacion);
             document.getElementById("btnPagado").addEventListener("click", marcarComoPagado);
             document.getElementById("btnVerHistorial").addEventListener("click", verHistorial);
-            
-            updateSessionUI();
-            rehacerTabla();
-            toggleAcciones(true);
+
+            // Restaurar la sesion creada
+            const ses = ssGet(SS_KEYS.SESSION, null);
+            if (ses){
+                usuarioActual = {
+                    dni: ses.dni, nombres: ses.nombres, apellidos: ses.apellidos,
+                    get nombreCompleto(){
+                        return `${this.nombres} ${this.apellidos}`.trim();
+                    }
+                };
+                toggleAcciones(false);
+                updateSessionUI();
+                cargarReparaciones();
+            } else{
+                toggleAcciones(true);
+                updateSessionUI();
+                rehacerTabla();
+            }
         }
     };
 })();
