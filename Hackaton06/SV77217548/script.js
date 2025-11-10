@@ -227,7 +227,7 @@ class Reparacion{
         const i = Reparacion.estaciones.indexOf(this.estado);
         if(i < 0 || i === Reparacion.estaciones.length-1) return;
         const siguiente = Reparacion.estaciones[i+1];
-        if(siguiente === "Autorizado" && !this.diag) throw new Error("Registra diagnóstico antes de autorizar.");
+        if(siguiente === "Autorizar" && !this.diag) throw new Error("Registra diagnóstico antes de autorizar.");
         if(siguiente === "En reparación"){
             if(!this.autorizado) throw new Error("Se requiere autorización y depósito 50% para iniciar reparación.");
             if(!this.tecnico) throw new Error("Asigna un técnico apto para la marca.");
