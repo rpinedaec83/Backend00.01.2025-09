@@ -180,12 +180,14 @@ class Reparacion{
     }
     estadoActual(estado){
         this.estado = estado;
-        this.historial.push({estado, ts:new Date()});
+        const ts = new Date();
+        this.historial.push({estado, ts});
+        emitir('rep:estado', {id: this.id, estado, ts});
     }
     registrarDiagnostico({descripcion, manoObra, estPartes}){
         if(!descripcion) throw new Error("Debes registrar una descripción del diagnóstico.");
         this.diag = {descripcion, manoObra:Number(manoObra)||0, estPartes:Number(estPartes)||0};
-        this.estadoActual("Diagnóstico");
+        this.estadoActual("Autorizar");
     }
     autorizar({tieneCarta, deposito}){
         if(!this.diag) throw new Error("Primero registra el diagnóstico.");
@@ -194,10 +196,20 @@ class Reparacion{
         if(Number(deposito||0) < requerido) throw new Error(`El depósito mínimo es 50% (${formatearSoles(requerido)}) del estimado.`);
         this.deposito = Number(deposito)||0;
         this.autorizado = true;
-        this.estadoActual("Autorizado");
+        this.estadoActual("En reparación");
     }
     asignarTecnico(tecnico){
         this.tecnico = tecnico;
+        // Parche para que avance una estación cuando asigne un tecnico
+        if (this.estado === "Recepción" && !this.diag){
+            this.estadoActual("Diagnóstico");
+        }
+        if (this.estado === "Autorizar" && this.autorizado) {
+            try {
+                this.avanzar();
+            } 
+            catch(err){Swal.fire("No se puede ingresar", err.message, "error");}
+        }
     }
     agregarRepuesto(repuesto){
         if(!this.diag) throw new Error("Primero registra el diagnóstico.");
@@ -235,7 +247,7 @@ class Reparacion{
         this.deposito = this.totalEstimado;
     }
 }
-Reparacion.estaciones = ["Recepción", "Diagnóstico", "Autorizado", "En reparación", "Calidad", "Listo", "Entregado"];
+Reparacion.estaciones = ["Recepción", "Diagnóstico", "Autorizar", "En reparación", "Calidad", "Listo", "Entregado"];
 Reparacion.seq = 1;
 
 // Seccion de almacenamiento SessionStorage y LocalStoragr
@@ -252,9 +264,9 @@ function lsSet(k, v){
     localStorage.setItem(k, JSON.stringify(v));
 }
 
-function lsGet(k){
+function lsGet(k, def = null){
     const s = localStorage.getItem(k);
-    return s ? JSON.parse(s) : null;
+    return s ? JSON.parse(s) : def;
 }
 
 function lsRemove(k){
@@ -265,9 +277,9 @@ function ssSet(k, v){
     sessionStorage.setItem(k, JSON.stringify(v));
 }
 
-function ssGet(k){
+function ssGet(k, def = null){
     const s = sessionStorage.getItem(k);
-    return s ? JSON.parse(s) : null;
+    return s ? JSON.parse(s) : def;
 }
 
 function ssRemove(k){
@@ -276,34 +288,34 @@ function ssRemove(k){
 
 // Funciones para convertir a texto plano y leer desde texto plano
 function repToPlain(r){
-  return {
-    id: r.id,
-    sucursal: r.sucursal,
-    cliente: {dni: r.cliente.dni, nombres: r.cliente.nombres, apellidos: r.cliente.apellidos},
-    telefono: {serie: r.telefono.serie, imei: r.telefono.imei, marca: r.telefono.marca, modelo: r.telefono.modelo, so: r.telefono.so},
-    tecnico: r.tecnico ? {idEmpleado: r.tecnico.idEmpleado, nombres: r.tecnico.nombres, apellidos: r.tecnico.apellidos, sucursal: r.tecnico.sucursal, skills: r.tecnico.skills} : null,
-    estado: r.estado,
-    historial: (r.historial || []).map(h => ({estado: h.estado, ts: (h.ts instanceof Date ? h.ts.toISOString() : h.ts)})),
-    diag: r.diag,
-    autorizado: r.autorizado,
-    deposito: r.deposito,
-    repuestos: (r.repuestos || []).map(p => ({nombre: p.nombre, costo: p.costo}))
-  };
+    return {
+        id: r.id,
+        sucursal: r.sucursal,
+        cliente: {dni: r.cliente.dni, nombres: r.cliente.nombres, apellidos: r.cliente.apellidos},
+        telefono: {serie: r.telefono.serie, imei: r.telefono.imei, marca: r.telefono.marca, modelo: r.telefono.modelo, so: r.telefono.so},
+        tecnico: r.tecnico ? {idEmpleado: r.tecnico.idEmpleado, nombres: r.tecnico.nombres, apellidos: r.tecnico.apellidos, sucursal: r.tecnico.sucursal, skills: r.tecnico.skills} : null,
+        estado: r.estado,
+        historial: (r.historial || []).map(h => ({estado: h.estado, ts: (h.ts instanceof Date ? h.ts.toISOString() : h.ts)})),
+        diag: r.diag,
+        autorizado: r.autorizado,
+        deposito: r.deposito,
+        repuestos: (r.repuestos || []).map(p => ({nombre: p.nombre, costo: p.costo}))
+    };
 }
 
 function repFromPlain(o){
-  const cli = new Cliente(o.cliente.dni, o.cliente.nombres, o.cliente.apellidos);
-  const tel = new Telefono(o.telefono);
-  const r = new Reparacion({ cliente: cli, telefono: tel, sucursal: o.sucursal });
-  r.id = o.id;
-  r.tecnico = o.tecnico ? new Tecnico(o.tecnico) : null;
-  r.estado = o.estado;
-  r.historial = (o.historial || []).map(h => ({ estado: h.estado, ts: new Date(h.ts) }));
-  r.diag = o.diag;
-  r.autorizado = !!o.autorizado;
-  r.deposito = Number(o.deposito)||0;
-  r.repuestos = (o.repuestos || []).map(p => new Repuesto(p.nombre, Number(p.costo)||0));
-  return r;
+    const cli = new Cliente(o.cliente.dni, o.cliente.nombres, o.cliente.apellidos);
+    const tel = new Telefono(o.telefono);
+    const r = new Reparacion({cliente: cli, telefono: tel, sucursal: o.sucursal});
+    r.id = o.id;
+    r.tecnico = o.tecnico ? new Tecnico(o.tecnico) : null;
+    r.estado = o.estado;
+    r.historial = (o.historial || []).map(h => ({estado: h.estado, ts: new Date(h.ts)}));
+    r.diag = o.diag;
+    r.autorizado = !!o.autorizado;
+    r.deposito = Number(o.deposito)||0;
+    r.repuestos = (o.repuestos || []).map(p => new Repuesto(p.nombre, Number(p.costo)||0));
+    return r;
 }
 
 function recomputarSecuencia(arr){
@@ -311,11 +323,17 @@ function recomputarSecuencia(arr){
     Reparacion.seq = (maxId||0) + 1;
 }
 
-// Emitir eventos
-function emitir(tipo, detalle){
-    document.dispatchEvent(
-        new CustomEvent(tipo, {detail: detalle})
-    );
+// Funciones eventos
+function on(tipo, fn){
+    document.addEventListener(tipo, fn);
+}
+
+function off(tipo, fn){
+    document.removeEventListener(tipo, fn);
+}
+
+function emitir(tipo, detail){
+    document.dispatchEvent(new CustomEvent(tipo, {detail}));
 }
 
 // modulo principal
@@ -442,6 +460,7 @@ const Taller = (function(){
         updateSessionUI();
         toggleAcciones(false);
         cargarReparaciones();
+        emitir('session:login', {dni: usuarioActual.dni});
         await Swal.fire("Bienvenido", `Hola, ${usuarioActual.nombreCompleto}`, "success");
     }
 
@@ -452,6 +471,7 @@ const Taller = (function(){
         rehacerTabla();
         updateSessionUI();
         toggleAcciones(true);
+        emitir('session:logout', {});
         await Swal.fire("Sesión cerrada","","success");
     }
 
@@ -584,7 +604,9 @@ const Taller = (function(){
             equipo.validarNoReportado();
             const rep = new Reparacion({cliente, telefono:equipo, sucursal:form.suc});
             reparaciones.push(rep);
+            emitir('rep:creada', {id: rep.id});
             persistirReparaciones();
+            emitir('rep:listaActualizada', {cantidad: reparaciones.length});
             const suc = getSucursal(form.suc); if(suc) suc.agregarReparacion(rep);
             await Swal.fire("OK","Equipo ingresado en Recepción","success");
             rehacerTabla();
@@ -667,7 +689,9 @@ const Taller = (function(){
         }
 
         rep.asignarTecnico(tec);
+        emitir('rep:tecnicoAsignado', {id: rep.id, tecnico: tec.idEmpleado});
         persistirReparaciones();
+        emitir('rep:listaActualizada', { cantidad: reparaciones.length });
         await Swal.fire("OK", `Asignado a: ${tec.nombreCompleto}`, "success");
         rehacerTabla();
     }
@@ -694,7 +718,9 @@ const Taller = (function(){
 
         try{
             rep.registrarDiagnostico({descripcion:form.desc, manoObra:form.mo, estPartes:form.ep});
+            emitir('rep:diagnostico', {id: rep.id});
             persistirReparaciones();
+            emitir('rep:listaActualizada', {cantidad: reparaciones.length});
             await Swal.fire("OK","Diagnóstico registrado","success");
             rehacerTabla();
         }
@@ -725,7 +751,9 @@ const Taller = (function(){
 
         try{
             rep.autorizar({tieneCarta:form.auth, deposito:form.dep});
+            emitir('rep:autorizada', {id: rep.id, deposito: rep.deposito});
             persistirReparaciones();
+            emitir('rep:listaActualizada', {cantidad: reparaciones.length});
             await Swal.fire("OK","Autorizado y depósito registrado","success");
             rehacerTabla();
         }
@@ -751,7 +779,9 @@ const Taller = (function(){
 
         try{
             rep.agregarRepuesto(new Repuesto(form.nom, form.cos));
+            emitir('rep:repuesto', {id: rep.id, repuesto: form.nom});
             persistirReparaciones();
+            emitir('rep:listaActualizada', {cantidad: reparaciones.length});
             await Swal.fire("OK","Repuesto agregado","success");
             rehacerTabla();
         }
@@ -765,6 +795,7 @@ const Taller = (function(){
         try{
             rep.avanzar();
             persistirReparaciones();
+            emitir('rep:listaActualizada', {cantidad: reparaciones.length});
             await Swal.fire("OK", `Avanzó a: ${rep.estado}`, "success");
             rehacerTabla();
         }catch(err){await Swal.fire("No se puede avanzar", err.message, "error");}
@@ -801,7 +832,9 @@ const Taller = (function(){
         if (!res.isConfirmed) return;
 
         rep.pagarSaldoPendiente();
+        emitir('rep:pagada', {id: rep.id});
         persistirReparaciones();
+        emitir('rep:listaActualizada', {cantidad: reparaciones.length});
         await Swal.fire("OK", "Pago registrado correctamente.", "success");
         rehacerTabla();
     }
@@ -815,6 +848,18 @@ const Taller = (function(){
 
     return {
         init: function({sucursalesLista=[], tecnicosLista=[], reportados={seriales:[], imeis:[]}} = {}){
+            on('rep:listaActualizada', () => {rehacerTabla();});
+            on('rep:estado', (e) => {
+                const {id, estado} = e.detail;
+                console.log(`Rep #${id} → ${estado}`);
+            });
+            on('session:login', () => {cargarReparaciones();});
+            on('rep:creada', e => console.log('Creada', e.detail.id));
+            on('rep:diagnostico', e => console.log('Diagnóstico', e.detail.id));
+            on('rep:autorizada', e => console.log('Autorizada', e.detail.id));
+            on('rep:tecnicoAsignado', e => console.log('Técnico asignado', e.detail));
+            on('rep:pagada', e => console.log('Pagada', e.detail.id));
+
             RegistroReportes.cargar(reportados);
             sucursales = sucursalesLista.map(n => new Sucursal(n));
             tecnicosLista.forEach((t,i)=>{
