@@ -3,12 +3,41 @@ const db = new DB();
 
 const loadingSystem = () => {
     const branches = db.getData("Sucursales");
-    //console.log("Branches loaded",branches);
+    if (!branches.length) return;
 
     const arrayBranches = branches.map(branch => {
-        const newBranch = new Sucursal(branch.id, branch.nombre);
+        // Crear una nueva instancia de Sucursal y copiarle los datos guardados
+        const newBranch = new Sucursal();
+        Object.assign(newBranch, branch);
+
+        // Restaurar las clases hijas si existen
+        if (newBranch.clientes) {
+            newBranch.clientes = newBranch.clientes.map(c => {
+            const cliente = Object.assign(new Cliente(), c);
+
+            // Restaurar celulares del cliente
+            if (cliente.celulares) {
+                cliente.celulares = cliente.celulares.map(cel =>
+                    Object.assign(new Celular(), cel)
+                );
+            }
+            return cliente;
+        });}
+
+        if (newBranch.tecnicos) {
+            newBranch.tecnicos = newBranch.tecnicos.map(t => Object.assign(new Tecnico(), t));
+        }
+
+        if (newBranch.tickets) {
+        newBranch.tickets = newBranch.tickets.map(tk => {
+            const ticket = Object.assign(new Ticket(), tk);
+            ticket.cotizaciones = ticket.cotizaciones.map(c => Object.assign(new Cotizacion(), c));
+            return ticket;
+        });}
+
         return newBranch;
     });
+
     central01.loadingBranches(arrayBranches);
 }
 
@@ -18,7 +47,6 @@ const saveBranch = (System) => {
     //console.log("branchesValues", branchesValues);
     db.saveData("Sucursales", branchesValues);
 }
-
 
 
 const loadingSystemUsers = () => {
@@ -33,8 +61,6 @@ const saveUser = (System) => {
     const usersValues = System.usuarios.map(elemento => elemento.toValue());
     db.saveData("Usuarios", usersValues);
 }
-
-
 
 
 /*Tal vez
@@ -82,6 +108,7 @@ function obtenerFechaActual() {
 }
 
 async function mostrarFormulario() {
+    loadingSystem();
     const { value: formValues } = await Swal.fire({
         html: `
         <div>
@@ -129,7 +156,7 @@ async function mostrarFormulario() {
                     document.getElementById("verUsuarioActual").innerText = idUsuarioActual;
                     verTecnicos();
                     verClientes();
-                    verTickets();                    
+                    verTickets();
                     return null;
                 }
 
@@ -138,13 +165,13 @@ async function mostrarFormulario() {
                     idUsuarioActual = central01.usuarios[x].id;
                     document.getElementById("divCliente").style.display = "block";
                     document.getElementById("crearCelular").onclick = crearCelular;
-                    //document.getElementById("autorizarAtencion").onclick = autorizarAtencion;
-                    //document.getElementById("pagarCotizacion").onclick = pagarCotizacion;
+                    document.getElementById("autorizarAtencion").onclick = autorizarAtencion;
+                    document.getElementById("pagarCotizacion").onclick = pagarCotizacion;
                     document.getElementById("cerrarSesionCliente").onclick = () => cerrarSesion("divCliente");
                     document.getElementById("verUsuarioActualCliente").innerText = idUsuarioActual;
                     verCelulares()
                     verTicketsCliente();
-                    //verCotizacionesCliente();
+                    verCotizacionesCliente();
                 }
                 if (central01.usuarios[x].strTipo == "Tecnico") {
                     console.log("Es Técnico");
@@ -159,7 +186,7 @@ async function mostrarFormulario() {
                     document.getElementById("verUsuarioActualTecnico").innerText = idUsuarioActual;
                     verHabilidades();
                     verTicketsTecnico();
-                    //verCotizacionesTecnico();
+                    verCotizacionesTecnico();
                 }
             }
         }
@@ -169,7 +196,7 @@ async function mostrarFormulario() {
 
 async function cerrarSesion(div) {
     document.getElementById(div).style.display = "none";
-    isUsuarioActual = null;
+    idUsuarioActual = null;
     mostrarFormulario();
 }
 
@@ -272,7 +299,7 @@ async function crearNuevoTicket() {
     if (formValues) {
         central01.sucursales.forEach(sucursal => {
             if(idUsuarioActual == sucursal.id){
-                let nuevoTicket = sucursal.crearTicket(formValues[0], formValues[1]);
+                let nuevoTicket = sucursal.crearTicket(formValues[0], formValues[1]);                
                 if (nuevoTicket == "reportado") { Swal.fire("Celular figura como reportado.");}
                 if (nuevoTicket == "Habilidad no encontrada.") { Swal.fire("No hay técnicos con la habilidad necesaria.");}
                 if (nuevoTicket == "Celular invalido.") { Swal.fire("No hay celular registrado con ese Nro. de serie.");}
@@ -288,6 +315,7 @@ async function crearNuevoTicket() {
 }
 
 async function verTickets() {
+    
     central01.sucursales.forEach(sucursal => {
         if(idUsuarioActual == sucursal.id){            
             let cuerpoTabla = document.getElementById("tablaTickets");
@@ -297,8 +325,8 @@ async function verTickets() {
                 fila.innerHTML = `
                 <td>${ticket.id}</td>
                 <td>${ticket.celular.id}</td>
-                <td>${ticket.cliente.id}</td>
-                <td>${ticket.tecnico.id}</td>
+                <td>${ticket.cliente}</td>
+                <td>${ticket.tecnico}</td>
                 <td>${ticket.inicio}</td>
                 <td>${ticket.historial.length}</td>
                 <td>${ticket.cotizaciones.length}</td>
@@ -511,13 +539,13 @@ async function verTicketsCliente() {
     cuerpoTabla.innerHTML = ""; // limpia el contenido previo    
     central01.sucursales.forEach(sucursal => {
         sucursal.tickets.forEach(ticket => {
-            if(idUsuarioActual == ticket.cliente.id){
+            if(idUsuarioActual == ticket.cliente){
                 let fila = document.createElement("tr");
                 fila.innerHTML = `
                     <td>${ticket.id}</td>
                     <td>${ticket.celular.id}</td>
-                    <td>${ticket.cliente.nombre}</td>
-                    <td>${ticket.tecnico.nombre}</td>
+                    <td>${ticket.cliente}</td>
+                    <td>${ticket.tecnico}</td>
                     <td>${ticket.inicio || "—"}</td>
                     <td>
                         ${ticket.historial.length}:<br>
@@ -599,14 +627,14 @@ async function verTicketsTecnico() {
     central01.sucursales.forEach(sucursal => {        
         sucursal.tickets.forEach(ticket => {
             
-                if(idUsuarioActual == ticket.tecnico.id){
+                if(idUsuarioActual == ticket.tecnico){
                     console.log("OKOKOK");
                 let fila = document.createElement("tr");
                 fila.innerHTML = `
                     <td>${ticket.id}</td>
                     <td>${ticket.celular.id}</td>
-                    <td>${ticket.cliente.id}</td>
-                    <td>${ticket.tecnico.id}</td>
+                    <td>${ticket.cliente}</td>
+                    <td>${ticket.tecnico}</td>
                     <td>${ticket.inicio || "—"}</td>
                     <td>
                         ${ticket.historial.length}:<br>
@@ -663,36 +691,37 @@ async function crearCotizacion() {
         }
     });
     if (formValues) {
-        arrObjUsuarios[0].tipo.sucursales.forEach(sucursal => {
+
+        central01.sucursales.forEach(sucursal => {
             sucursal.tickets.forEach(ticket => {
-                if (ticket.id == formValues[3]) {
-                    ticket.crearCotizacion(formValues[0], formValues[1], formValues[2], usuarioActual.tipo, ticket.cliente, obtenerFechaActual());
+                if (formValues[3] == ticket.id){
+                    ticket.crearCotizacion(formValues[0], formValues[1], formValues[2], idUsuarioActual, ticket.cliente, obtenerFechaActual());                    
                 }
             });
         });
         verCotizacionesTecnico();
-
         //LOCALSTORAGE
         saveBranch(central01);
-        
     }
 }
 
 async function verCotizacionesTecnico() {
+
     let cuerpoTabla = document.getElementById("tablaCotizacionesTecnicos");
     cuerpoTabla.innerHTML = ""; // limpia el contenido previo
 
-    arrObjUsuarios[0].tipo.sucursales.forEach(sucursal => {
+    central01.sucursales.forEach(sucursal => {
         sucursal.tickets.forEach(ticket => {
             ticket.cotizaciones.forEach(cotizacion => {
-                if (cotizacion.tecnico == usuarioActual.tipo) {
+                console.log(`cotizacion.tecnico: ${cotizacion.tecnico}`);
+                if (cotizacion.tecnico == idUsuarioActual){
                     let fila = document.createElement("tr");
                     fila.innerHTML = `
                     <td>${cotizacion.id}</td>
                     <td>${cotizacion.concepto}</td>
                     <td>S/ ${cotizacion.monto}</td>
-                    <td>${cotizacion.cliente.id}</td>
-                    <td>${cotizacion.tecnico.id}</td>
+                    <td>${cotizacion.cliente}</td>
+                    <td>${cotizacion.tecnico}</td>
                     <td>${cotizacion.fecha}</td>
                     <td>${cotizacion.estadoPago}</td>
                     `;
@@ -701,46 +730,6 @@ async function verCotizacionesTecnico() {
             });
         });
     });
-}
-
-
-async function atenderTicket() {
-    const { value: formValues } = await Swal.fire({
-        html: `
-        <div>
-        <br><br><br>
-            <i id="celularLogin" class="bi bi-phone"></i><i id="martilloLogin" class="bi bi-hammer"></i><br>
-            <h3 class="titulosLogin">Reparaciones</h3><h1 class="titulosLogin">Vibe Phone</h1>
-            <div class="subtitulosLogin">Id de Ticket</div>
-            <input id="swal-input1" class="swal2-input">
-            <br><br>
-            <div class="subtitulosLogin">Anotación</div>
-            <input id="swal-input2" class="swal2-input">
-        </div>`,
-        confirmButtonText: `Registrar Anotación`,
-
-        focusConfirm: false,
-        preConfirm: () => {
-            return [
-                document.getElementById("swal-input1").value,
-                document.getElementById("swal-input2").value
-            ];
-        }
-    });
-    if (formValues) {
-
-        arrObjUsuarios[0].tipo.sucursales.forEach(sucursal => {
-            sucursal.tickets.forEach(ticket => {
-                if (ticket.id == formValues[0]) {
-                    ticket.actualizarEstadoTicket(formValues[1]);
-                }
-            });
-        });
-        verTicketsTecnico();
-
-        //LOCALSTORAGE
-        saveBranch(central01);        
-    }
 }
 
 async function autorizarAtencion() {
@@ -764,23 +753,20 @@ async function autorizarAtencion() {
         }
     });
     if (formValues) {
-
-        arrObjUsuarios[0].tipo.sucursales.forEach(sucursal => {
+        central01.sucursales.forEach(sucursal => {
             sucursal.tickets.forEach(ticket => {
-                if (ticket.id == formValues[0]) {
+                if(formValues[0] == ticket.id){
                     ticket.autorizarAtencion();
                 }
             });
         });
         verTicketsCliente();
-
         //LOCALSTORAGE
         saveBranch(central01);
     }
 }
 
 async function pagarCotizacion() {
-
     const { value: formValues } = await Swal.fire({
         html: `
         <div>
@@ -801,19 +787,18 @@ async function pagarCotizacion() {
         }
     });
     if (formValues) {
-
-        arrObjUsuarios[0].tipo.sucursales.forEach(sucursal => {
+        central01.sucursales.forEach(sucursal => {
             sucursal.tickets.forEach(ticket => {
                 ticket.cotizaciones.forEach(cotizacion => {
-                    if (cotizacion.id == formValues[0] && cotizacion.cliente == usuarioActual.tipo) {
+                    if(cotizacion.id == formValues[0]){                            
                         cotizacion.pagarCotizacion();
-                    } else { Swal.fire("Cotización no encontrada/asignada al cliente actual.") }
+                    }
                 });
+
             });
         });
         verCotizacionesCliente();
         verTicketsCliente();
-
         //LOCALSTORAGE
         saveBranch(central01);
     }
@@ -822,18 +807,18 @@ async function pagarCotizacion() {
 async function verCotizacionesCliente() {
     let cuerpoTabla = document.getElementById("tablaCotizacionesClientes");
     cuerpoTabla.innerHTML = ""; // limpia el contenido previo
-
-    arrObjUsuarios[0].tipo.sucursales.forEach(sucursal => {
+    central01.sucursales.forEach(sucursal => {
         sucursal.tickets.forEach(ticket => {
             ticket.cotizaciones.forEach(cotizacion => {
-                if (cotizacion.cliente == usuarioActual.tipo) {
+                console.log(`cotizacion.cliente: ${cotizacion.cliente}`);
+                if (cotizacion.cliente == idUsuarioActual){
                     let fila = document.createElement("tr");
                     fila.innerHTML = `
                     <td>${cotizacion.id}</td>
                     <td>${cotizacion.concepto}</td>
                     <td>S/ ${cotizacion.monto}</td>
-                    <td>${cotizacion.cliente.id}</td>
-                    <td>${cotizacion.tecnico.nombre}</td>
+                    <td>${cotizacion.cliente}</td>
+                    <td>${cotizacion.tecnico}</td>
                     <td>${cotizacion.fecha}</td>
                     <td>${cotizacion.estadoPago}</td>
                     `;
@@ -842,8 +827,35 @@ async function verCotizacionesCliente() {
             });
         });
     });
-
 }
+
+async function verCotizacionesTecnico() {
+
+    let cuerpoTabla = document.getElementById("tablaCotizacionesTecnicos");
+    cuerpoTabla.innerHTML = ""; // limpia el contenido previo
+
+    central01.sucursales.forEach(sucursal => {
+        sucursal.tickets.forEach(ticket => {
+            ticket.cotizaciones.forEach(cotizacion => {
+                console.log(`cotizacion.tecnico: ${cotizacion.tecnico}`);
+                if (cotizacion.tecnico == idUsuarioActual){
+                    let fila = document.createElement("tr");
+                    fila.innerHTML = `
+                    <td>${cotizacion.id}</td>
+                    <td>${cotizacion.concepto}</td>
+                    <td>S/ ${cotizacion.monto}</td>
+                    <td>${cotizacion.cliente}</td>
+                    <td>${cotizacion.tecnico}</td>
+                    <td>${cotizacion.fecha}</td>
+                    <td>${cotizacion.estadoPago}</td>
+                    `;
+                    cuerpoTabla.appendChild(fila);
+                }
+            });
+        });
+    });
+}
+
 
 async function declararEstadoCelular() {
     const { value: formValues } = await Swal.fire({
@@ -880,7 +892,7 @@ async function declararEstadoCelular() {
         });
 
         //LOCALSTORAGE
-        //saveBranch(central01);
+        saveBranch(central01);
     }
 }
 
@@ -904,19 +916,66 @@ async function cerrarTicket() {
         }
     });
     if (formValues) {
-        arrObjUsuarios[0].tipo.sucursales.forEach(sucursal => {
-            sucursal.tickets.forEach(ticket => {
-                if (ticket.id == formValues[0]) {
+        central01.sucursales.forEach(sucursal => {
+            sucursal.tickets.forEach(ticket =>{
+                if (formValues[0]==ticket.id){
                     ticket.cerrarTicket(obtenerFechaActual());
                 }
             });
-        });
-    }
-    verTicketsTecnico();
-
-    //LOCALSTORAGE
-    saveBranch(central01);
+        });   
+        verTicketsTecnico();
+        //LOCALSTORAGE
+        saveBranch(central01);     
+    }    
 }
+
+async function atenderTicket(){
+    const { value: formValues } = await Swal.fire({
+        html: `
+        <div>
+        <br><br><br>
+            <i id="celularLogin" class="bi bi-phone"></i><i id="martilloLogin" class="bi bi-hammer"></i><br>
+            <h3 class="titulosLogin">Reparaciones</h3><h1 class="titulosLogin">Vibe Phone</h1>
+            <div class="subtitulosLogin">Id de Ticket</div>
+            <input id="swal-input1" class="swal2-input">
+            <br><br>
+            <div class="subtitulosLogin">Anotación</div>
+            <input id="swal-input2" class="swal2-input">
+        </div>`,
+        confirmButtonText: `Registrar Anotación`,
+
+        focusConfirm: false,
+        preConfirm: () => {
+            return [
+                document.getElementById("swal-input1").value,
+                document.getElementById("swal-input2").value
+            ];
+        }
+    });
+    if (formValues) {
+        central01.sucursales.forEach(sucursal => {
+            sucursal.tickets.forEach(ticket => {
+                if (ticket.id == formValues[0]){
+                    ticket.actualizarEstadoTicket(formValues[1]);
+                }
+            });
+        });
+        verTicketsTecnico();
+        //LOCALSTORAGE
+        saveBranch(central01);  
+    }
+}
+
+
+
+
+
+
+
+
+
+
+
 
 /*COSAS DE LOCALSTORAGE*/
 

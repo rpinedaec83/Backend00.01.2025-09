@@ -95,7 +95,7 @@ class Sucursal {
                     }
                 }                
 
-                let ticketFinal = new Ticket(idTicket, celular, clienteEncontrado, tecnicoSeleccionado);
+                let ticketFinal = new Ticket(idTicket, celular, clienteEncontrado.id, tecnicoSeleccionado.id);
                 this.tickets.push(ticketFinal);
                 tecnicoSeleccionado.tareas.push(ticketFinal);
                 return ticketFinal;
