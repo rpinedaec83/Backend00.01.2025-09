@@ -5,6 +5,7 @@ class Central {
         this.id = id;
         this.nombre = nombre;
         this.sucursales = [];
+        this.usuarios = [];
     }
     crearSucursal(id, nombre) {
         let nuevaSucursal = new Sucursal(id, nombre);
@@ -13,6 +14,14 @@ class Central {
     }
     loadingBranches(branches){
         this.sucursales = branches;
+    }
+    crearUsuario(id,clave,strTipo){
+        let nuevoUsuario = new UsuarioSistema(id,clave,strTipo);
+        this.usuarios.push(nuevoUsuario);
+        return nuevoUsuario;
+    }
+    loadingUsers(users){
+        this.usuarios = users;
     }
 }
 
@@ -100,7 +109,7 @@ class Sucursal {
             tecnicos: this.tecnicos,
             clientes: this.clientes,
             tickets: this.tickets,
-            reportados: this.reportados            
+            reportados: this.reportados
         }
     }
 }
@@ -212,18 +221,16 @@ class Cotizacion {
 }
 
 class UsuarioSistema {
-    constructor(tipo, clave) {
-        this.tipo = tipo;
+    constructor(id, clave,strTipo) {
+        this.id = id;
         this.clave = clave;
+        this.strTipo = strTipo;
+    }
+    toValue(){
+        return{
+            id: this.id,
+            clave: this.clave,
+            strTipo: this.strTipo
+        }
     }
 }
-
-
-let central01 = new Central("admin", "Reparaciones VibePhone");
-/*let sucursal01 = central01.crearSucursal("SUC0001", "Sucursal Principal");
-let tecnico01 = sucursal01.crearTecnico("TEC0001", "Carlos");
-let cliente01 = sucursal01.crearCliente("CLI0001", "Ana");
-tecnico01.crearHabilidad("Samsung", "5");
-tecnico01.crearHabilidad("Redmi", "1");
-tecnico01.crearHabilidad("Iphone", "2");
-cliente01.crearCelular("CEL0001", "IMEI0001", "Samsung");*/
