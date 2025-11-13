@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="es"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Verificar Dispositivo</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet"/>
+<script>
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#137fec",
+                        "background-light": "#f6f7f8",
+                        "background-dark": "#101922",
+                    },
+                    fontFamily: {
+                        "display": ["Inter", "sans-serif"]
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                },
+            },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            font-size: 24px;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background-light dark:bg-background-dark font-display">
+<div class="relative flex h-auto min-h-screen w-full flex-col">
+<!-- Top App Bar -->
+<header class="flex items-center p-4 pb-2 bg-background-light dark:bg-background-dark sticky top-0 z-10">
+<button class="text-slate-800 dark:text-white flex size-10 shrink-0 items-center justify-center rounded-full hover:bg-slate-500/10 transition-colors">
+<span class="material-symbols-outlined">arrow_back</span>
+</button>
+<h2 class="text-slate-900 dark:text-white text-lg font-bold leading-tight tracking-[-0.015em] flex-1 text-center pr-10">Verificar Dispositivo</h2>
+</header>
+<main class="flex-1 flex flex-col px-4 pt-6 pb-8">
+<!-- Headline and Body Text -->
+<h1 class="text-slate-900 dark:text-white text-[32px] font-bold leading-tight tracking-tight text-left pb-2">Verifica tu Dispositivo</h1>
+<p class="text-slate-600 dark:text-slate-400 text-base font-normal leading-normal pb-8">Ingresa el número de serie y el IMEI de tu teléfono para asegurar que podamos repararlo.</p>
+<!-- Form Fields -->
+<div class="flex flex-col gap-6">
+<!-- Serial Number TextField -->
+<div class="flex flex-col">
+<label class="text-slate-800 dark:text-white text-base font-medium leading-normal pb-2" for="serial-number">Número de Serie</label>
+<div class="flex w-full items-stretch rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900/40 focus-within:ring-2 focus-within:ring-primary focus-within:border-primary transition-all">
+<input class="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-l-xl text-slate-900 dark:text-white focus:outline-0 focus:ring-0 border-0 bg-transparent h-14 placeholder:text-slate-400 dark:placeholder:text-slate-500 p-4 text-base font-normal leading-normal" id="serial-number" placeholder="Ingresa el número de serie" value=""/>
+<div class="text-slate-500 dark:text-slate-400 flex items-center justify-center pr-4">
+<span class="material-symbols-outlined">info</span>
+</div>
+</div>
+</div>
+<!-- IMEI TextField -->
+<div class="flex flex-col">
+<label class="text-slate-800 dark:text-white text-base font-medium leading-normal pb-2" for="imei">IMEI</label>
+<div class="flex w-full items-stretch rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900/40 focus-within:ring-2 focus-within:ring-primary focus-within:border-primary transition-all">
+<input class="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-l-xl text-slate-900 dark:text-white focus:outline-0 focus:ring-0 border-0 bg-transparent h-14 placeholder:text-slate-400 dark:placeholder:text-slate-500 p-4 text-base font-normal leading-normal" id="imei" placeholder="Ingresa los 15 dígitos del IMEI" value=""/>
+<div class="text-slate-500 dark:text-slate-400 flex items-center justify-center pr-4">
+<span class="material-symbols-outlined">info</span>
+</div>
+</div>
+</div>
+</div>
+<div class="flex-grow"></div>
+<!-- Action Button -->
+<div class="mt-8">
+<button class="flex w-full items-center justify-center rounded-xl bg-primary h-14 text-white text-base font-bold leading-normal transition-opacity hover:opacity-90 active:opacity-80 disabled:opacity-50 disabled:cursor-not-allowed" ="">Verificar Ahora</button>
+</div>
+</main>
+</div>
+</body></html>

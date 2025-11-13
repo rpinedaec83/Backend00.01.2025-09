@@ -58,7 +58,7 @@ const Reserva = (function () {
                     origen: $("#origen").val(),
                     destino : $("#destino").val(),
                     fechaIda: $("#fechaIda").val(),
-                    fechaVuelta: $("#fechaVuelta").val(),
+                    fechaVuelta: $("#fechaVuelta").val(),   
                 }
             }
         })
