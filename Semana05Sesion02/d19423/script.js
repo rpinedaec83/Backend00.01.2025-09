@@ -88,7 +88,7 @@ const Reserva = (function () {
         $("#idaOrigen").val(obj.origen);
         // $("#").val(obj);
         // $("#").val(obj);
-        // $("#").val(obj);
+        // $("#").val(obj);fun
         // $("#").val(obj);
         // $("#").val(obj);
 
