@@ -70,9 +70,9 @@ html
         li Última actualización: #{user.updated_at}
 
       hr
-
-      h3 JSON completo
-      pre= JSON.stringify(user, null, 2)
+      details
+        summary Ver JSON completo
+        pre= JSON.stringify(user, null, 2)
 
     else
       p No hay datos para mostrar.
