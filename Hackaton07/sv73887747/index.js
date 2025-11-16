@@ -20,7 +20,7 @@ app.get('/github', async (req, res) => {
     }
 });
 
-// 2. Clima (usa OpenWeather - necesitas key en .env como OPENWEATHER_KEY=tuapikey)
+// 2. Clima
 app.get('/clima', async (req, res) => {
     const ciudad = req.query.ciudad || 'Lima';
     try {
@@ -31,7 +31,7 @@ app.get('/clima', async (req, res) => {
     }
 });
 
-// 3. Tipo de cambio dólar en Perú (usa Frankfurter - corregido para 2025)
+// 3. Tipo de cambio dólar en Perú
 app.get('/dolar', async (req, res) => {
     try {
         const response = await axios.get('https://api.frankfurter.app/latest?base=USD&symbols=PEN');
@@ -103,7 +103,7 @@ app.get('/productos', async (req, res) => {
     }
 });
 
-// 10. Fotos con tema y tamaño (Unsplash - key en .env como UNSPLASH_KEY=tuapikey)
+// 10. Fotos con tema y tamaño
 app.get('/fotos', async (req, res) => {
     const tema = req.query.tema || 'nature';
     const tamano = req.query.tamano || 'regular'; // small, regular, full
@@ -136,7 +136,7 @@ app.get('/usuario', async (req, res) => {
     }
 });
 
-// 13. Top películas estreno (TheMovieDB - key en .env como TMDB_KEY=tuapikey)
+// 13. Top películas estreno
 app.get('/peliculas', async (req, res) => {
     try {
         const response = await axios.get(`https://api.themoviedb.org/3/movie/top_rated?api_key=${process.env.TMDB_KEY}`);
@@ -157,7 +157,7 @@ app.get('/pelicula', async (req, res) => {
     }
 });
 
-// 15. Datos de Marte (NASA - usa demo key)
+// 15. Datos de Marte
 app.get('/marte', async (req, res) => {
     try {
         const response = await axios.get('https://api.nasa.gov/mars-photos/api/v1/rovers/curiosity/photos?sol=1000&api_key=DEMO_KEY');
@@ -167,7 +167,7 @@ app.get('/marte', async (req, res) => {
     }
 });
 
-// Ruta centralizada: Llama a todas las APIs y devuelve un objeto grande
+// Ruta centralizada
 app.get('/all', async (req, res) => {
     try {
         const github = await axios.get(`https://api.github.com/users/${req.query.user || 'rpinedaec83'}`);
