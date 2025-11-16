@@ -40,5 +40,59 @@ html
             input(type="text" id="name" name="name" placeholder="pikachu" required)
             button(type="submit") Buscar
 
+        h2 Rick and Morty
+        h3 Lista de personajes
+        form(action="/rick" method="get")
+            label(for="limit") Cantidad (o escribe "todos"):
+            input(type="text" id="limit" name="limit" placeholder="todos")
+            button(type="submit") Ver lista
+
+        h3 Detalle de personaje
+        form(action="/rick/personaje" method="get")
+            label(for="name") Nombre del personaje:
+            input(type="text" id="rick-name" name="name" placeholder="rick sanchez" required)
+            button(type="submit") Ver detalle
+
+        h2 Cocteles
+        a(href="/cocktails") Obtener 10 cocktails al azar
+
+        h2 Tienda ficticia
+        h3 Lista de productos
+        form(action="/productos" method="get")
+            label(for="limit") Cantidad:
+            input(type="number" name="limit" value="10" min="1" max="20")
+            button(type="submit") Ver productos
+
+        h2 Fotos
+        form(action="/fotos" method="get")
+            label(for="q") Tema:
+            input(type="text" id="q" name="q" placeholder="gatos" required)
+            button(type="submit") Buscar fotos
+
+        h2 Frase famosa
+        a(href="/frase") Dame la frase del dia
+
+        h2 Usuario random
+        a(href="/random-user") Ver usuario aleatorio
+
+        h2 Películas
+
+        h2 Películas
+
+        h3 Top 10 estrenos populares
+        a(href="/peliculas") Ver top 10 estrenos
+
+        h3 Detalle por ID
+        form(action="/pelicula" method="get")
+            label(for="id") ID de la película:
+            input(type="number" id="id" name="id" placeholder="Ej: 550" min="1")
+            button(type="submit") Ver detalle por ID
+
+        h3 Detalle por nombre
+        form(action="/pelicula" method="get")
+            label(for="name") Nombre de la película:
+            input(type="text" id="name" name="name" placeholder="Bastardos sin Gloria" required)
+            button(type="submit") Ver detalle por nombre
+
         h2 Marte
-            a(href="/mars") Ver datos de Marte
+        a(href="/mars") Ver datos de Marte
