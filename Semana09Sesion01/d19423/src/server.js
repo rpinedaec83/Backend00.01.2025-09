@@ -4,6 +4,7 @@ const express = require('express');
 const {sequelize, User} = require('./models');
 const syncDB = require('./sync-db');
 const {userRouter} = require('./routes/user.route')
+const {postRouter} = require('./routes/post.route')
 
 
 const app = express();
@@ -18,6 +19,7 @@ app.use((req,res,next)=>{
 });
 
 app.use('/user',userRouter);
+app.use('/post',postRouter);
 
 app.get('/health',(req,res)=>{
     res.json({ok:true})
