@@ -31,14 +31,14 @@ npm run dev         # o npm start
 npm run db:sync
 ```
 
-Para probar que las tablas se hayan creado correctamente, puedes verificar en pgAdmin si lo tienes instalado y configurado para postgres en tu .env.
+Para probar que las tablas se hayan creado correctamente, puedes verificar en pgAdmin si lo tienes instalado y configurado para postgres en tu `.env`.
 
 
 # Preuba con sqlite:
 Si no tienes sqlite3 para probarlo, instálalo desde:
 https://sqlite.org/download.html
 
-Tenemos que configurar el .env con 
+Tenemos que configurar el `.env` con 
 ```env
 DB_DIALECT=sqlite               # sqlite en este caso
 DB_SYNC=alter                   # tipo de sync
@@ -53,14 +53,14 @@ npm run dev         # o npm start
 npm run db:sync
 ```
 
-Verás cómo se creó el archivo .sqlite donde lo pusiste y lo puedes visualizar si por ejemplo lo llamaste tmp.sqlite en la carpeta /tests:
+Verás cómo se creó el archivo `.sqlite` donde lo pusiste y lo puedes visualizar si por ejemplo lo llamaste tmp.sqlite en la carpeta `/tests`:
 ```bash
 sqlite3 ./tests/tmp.sqlite ".tables"                    # Visualizamos las tablas existentes
 sqlite3 ./tests/tmp.sqlite "PRAGMA table_info(users);"  # Muestra el esquema de la tabla users
 ```
 
 ## Prueba del Health
-Ahora en otra terminal prueba, para verificar que el health funciona mientras está ejecutando server.js:
+Ahora en otra terminal prueba, para verificar que el health funciona mientras está ejecutando `server.js`:
 ```bash
 curl http://localhost:3000/health
 ```
@@ -148,3 +148,39 @@ curl -X POST http://localhost:3000/api/courses/999/lessons \
 # Recurso inexistente (404)
 curl http://localhost:3000/api/courses/99999
 ```
+## Prueba v0.4 con auth y roles
+```bash
+# 1) Migraciones + seed de prueba
+npm run db:migrate
+npm run db:seed
+npm run dev
+
+# 2) Login como instructor
+curl -s -X POST http://localhost:3000/api/auth/login \
+  -H "Content-Type: application/json" \
+  -d '{"email":"instructor@example.com","password":"instructor_password"}'
+
+# 3) Guarda el token en una variable para que no estes copiando y pegando varias veces
+TOKEN=...aqui va el token...
+
+# 3) Crear curso (debe funcionar con token de instructor)
+curl -X POST http://localhost:3000/api/courses \
+  -H "Authorization: Bearer $TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{"title":"Curso Nuevo","description":"Desc","ownerId":2,"published":false}'
+
+# 4) Login como student
+curl -s -X POST http://localhost:3000/api/auth/login \
+  -H "Content-Type: application/json" \
+  -d '{"email":"student@example.com","password":"student_password"}'
+
+# 3) Guarda el token en una variable para que no estes copiando y pegando varias veces
+TOKEN_STUDENT=...aqui va el token...
+
+# 5) Intentar crear curso con student (debe devolver 403)
+curl -i -X POST http://localhost:3000/api/courses \
+  -H "Authorization: Bearer $TOKEN_STUDENT" \
+  -H "Content-Type: application/json" \
+  -d '{"title":"Curso Nuevo 2","description":"Desc","ownerId":3,"published":false}'
+```
+Requisitos: `JWT_SECRET` configurado en `.env`

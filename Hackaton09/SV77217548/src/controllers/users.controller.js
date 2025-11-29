@@ -20,10 +20,19 @@ async function createUser(req, res){
     }
 }
 
+// Modificacion para admitir ?q= para búsqueda parcial.
 async function listUsers(req, res){
     const {page, pageSize, offset, limit} = buildPagination(req.query);
     const where = {};
     if (req.query.role) where.role = req.query.role;
+    if (req.query.q){
+        const q = `%${req.query.q.trim().toLowerCase()}%`;
+        where[User.sequelize.Op.or] = [
+            {firstName: {[User.sequelize.Op.iLike]: q}},
+            {lastName: {[User.sequelize.Op.iLike]: q}},
+            {email: {[User.sequelize.Op.iLike]: q}},
+        ];
+    }
     const {rows, count} = await User.findAndCountAll({where, limit, offset, order: [['createdAt', 'DESC']]});
     res.json({total: count, page, pageSize, data: rows});
 }
