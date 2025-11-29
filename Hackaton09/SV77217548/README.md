@@ -1,4 +1,4 @@
-# Hackaton09 - v0.1
+# Hackaton09 - v0.1 Inicio
 Inicio del proyecto.
 
 ## Notas de versión
@@ -15,3 +15,14 @@ Etapa con Express, Sequelize y modelos definidos. Entidades y relaciones constru
 - Config DB con Postgres o sqlite (según `DB_DIALECT`).
 - Modelos: User, Course(con metadata JSONB/JSON), Lesson, Enrollment, Comment; relaciones y hooks básicos.
 - Script `npm run db:sync` y sync opcional al levantar según `DB_SYNC` (`none|alter|force`).
+
+
+# Hackaton09 - v0.3 CRUD API
+Etapa con CRUD básico de usuarios, cursos y lecciones.
+
+## Notas de versión
+- CRUD sin autenticación:
+  - `POST/GET /api/users`
+  - `POST/GET/PUT/DELETE /api/courses`
+  - `GET /api/courses/:id` (incluye lecciones)
+  - `POST/GET/PUT/DELETE /api/courses/:courseId/lessons`

@@ -69,3 +69,60 @@ Deberías recibir:
 { "ok": true, "timestamp": "..." }
 ```
 
+## Pruebas API REST (v0.3 sin auth)
+Ejecuta el servidor (`npm run dev`) y prueba con `curl` en otra terminal:
+
+```bash
+# 1) Crear usuario (role por defecto student)
+curl -X POST http://localhost:3000/api/users \
+  -H "Content-Type: application/json" \
+  -d '{"firstName":"Rony","lastName":"Chang","email":"student@example.com","password":"student_password"}'
+
+# 2) Listar usuarios (paginado y filtro por role)
+curl "http://localhost:3000/api/users?page=1&pageSize=5&role=student"
+
+# 3) Crear curso (usa ownerId de un usuario existente)
+curl -X POST http://localhost:3000/api/courses \
+  -H "Content-Type: application/json" \
+  -d '{"title":"Curso Backend","description":"Intro a APIs","ownerId":1,"published":false,"metadata":{"level":"intro"}}'
+
+# 4) Listar cursos con filtros/orden
+curl "http://localhost:3000/api/courses?published=false&q=node&order=createdAt:DESC&page=1&pageSize=5"
+
+# 5) Crear leccion en un curso (usa courseId del curso creado)
+curl -X POST http://localhost:3000/api/courses/1/lessons \
+  -H "Content-Type: application/json" \
+  -d '{"title":"Leccion 1","body":"Contenido minimo de prueba"}'
+
+# 6) Listar lecciones de un curso (ordenadas por order)
+curl "http://localhost:3000/api/courses/1/lessons?page=1&pageSize=10"
+```
+
+Si quieres probar con sqlite, recuerda dejar `DB_DIALECT=sqlite` y `DB_STORAGE=./tests/tmp.sqlite` en `.env`, sincronizar (`npm run db:sync`) y luego correr los mismos curls.
+
+### Casos de error para validar manejo de errores
+```bash
+# Email duplicado (409)
+curl -X POST http://localhost:3000/api/users \
+  -H "Content-Type: application/json" \
+  -d '{"firstName":"Rony","lastName":"Chang","email":"student@example.com","password":"student_password"}'
+# repite el mismo curl y espera 409
+
+# Campos obligatorios faltantes (400)
+curl -X POST http://localhost:3000/api/users \
+  -H "Content-Type: application/json" \
+  -d '{"firstName":"Rony"}'
+
+# metadata no es objeto (400)
+curl -X POST http://localhost:3000/api/courses \
+  -H "Content-Type: application/json" \
+  -d '{"title":"Curso Backend","description":"Intro a APIs","ownerId":1,"metadata":"no es un objeto"}'
+
+# Curso inexistente al crear leccion (404)
+curl -X POST http://localhost:3000/api/courses/999/lessons \
+  -H "Content-Type: application/json" \
+  -d '{"title":"Leccion 3","body":"Contenido minimo de prueba"}'
+
+# Recurso inexistente (404)
+curl http://localhost:3000/api/courses/99999
+```

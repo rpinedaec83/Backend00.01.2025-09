@@ -27,7 +27,7 @@ const User = sequelize.define('User',{
 );
 
 const Course = sequelize.define('Course',{
-    title: {type: DataTypes.STRING, allowNull: false, unique: true, validate: {len: [1, 100]}},
+    title: {type: DataTypes.STRING, allowNull: false, unique: true, validate: {len: [5, 100]}}, //Tittle course min 5 chars
     slug: {type: DataTypes.STRING, allowNull: false, unique: true},
     description: {type: DataTypes.TEXT, allowNull: false, validate: {len: [1, 8000]}},
     published: {type: DataTypes.BOOLEAN, defaultValue: false},
@@ -51,7 +51,7 @@ const Course = sequelize.define('Course',{
 const Lesson = sequelize.define('Lesson',{
     title: {type: DataTypes.STRING, allowNull: false, validate: {len: [1, 100]}},
     slug: {type: DataTypes.STRING, allowNull: false},
-    body: {type: DataTypes.TEXT, allowNull: false, validate: {len: [1, 8000]}},
+    body: {type: DataTypes.TEXT, allowNull: false, validate: {len: [20, 8000]}}, //Body lessson min 20 chars
     order: {type: DataTypes.INTEGER, allowNull: false, validate: {min: 1}},
     courseId: {type: DataTypes.INTEGER, allowNull: false},
   },
@@ -126,6 +126,7 @@ Comment.belongsTo(User, {as: 'author', foreignKey: 'userId'});
 
 
 // Hooks y normalizaciones
+// Uso 'beforeValidate' para cubrir antes de crear y antes de actualzaciones. 
 User.addHook('beforeValidate', (user) => {
     if (user.firstName) user.firstName = user.firstName.trim();
     if (user.lastName) user.lastName = user.lastName.trim();

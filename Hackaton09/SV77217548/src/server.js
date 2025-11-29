@@ -2,6 +2,8 @@ console.log("Inicio de la aplicacion")
 
 require('dotenv').config();
 const express = require('express');
+const routes = require('./routes');
+const {errorHandler, notFound} = require('./middlewares/error-handler');
 const {sequelize} = require('./models');
 
 const app = express();
@@ -11,9 +13,12 @@ const DB_HOST = process.env.DB_HOST;
 
 app.use(express.json());
 
-app.get('/health', (req, res) => {
-    res.json({ok: true, timestamp: new Date().toISOString()});
-});
+app.get('/health', (req, res) => res.json({ok: true, timestamp: new Date().toISOString()}));
+
+app.use('/api', routes);
+
+app.use(notFound);
+app.use(errorHandler);
 
 app.listen(PORT, () => {
     console.log(`API lista en http://${DB_HOST}:${PORT}`);
