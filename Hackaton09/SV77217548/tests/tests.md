@@ -69,6 +69,28 @@ Deberías recibir:
 { "ok": true, "timestamp": "..." }
 ```
 
+## Pruebas con migraciones y seeds (v0.3.1)
+```bash
+# 1) Aplica migraciones para ajustar tablas y relaciones con la base limpia sin data.
+npm run db:migrate
+
+# 2) Carga datos de prueba (admin/instructor/student, curso, lecciones)
+npm run db:seed
+
+# 3) Levanta el servidor
+npm run dev
+
+# 4) Endpoints de prueba
+curl http://localhost:3000/api/users
+curl http://localhost:3000/api/courses
+curl http://localhost:3000/api/courses/1/lessons
+```
+Para limpiar los datos de prueba sin tocar el resto:
+```bash
+npm run db:seed:undo      # borra solo los datos insertados por el seeder.
+npm run db:migrate:undo   # revierte la última migración si es neccesario.
+```
+
 ## Pruebas API REST (v0.3 sin auth)
 Ejecuta el servidor (`npm run dev`) y prueba con `curl` en otra terminal:
 

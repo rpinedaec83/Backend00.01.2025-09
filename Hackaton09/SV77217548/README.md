@@ -26,3 +26,12 @@ Etapa con CRUD básico de usuarios, cursos y lecciones.
   - `POST/GET/PUT/DELETE /api/courses`
   - `GET /api/courses/:id` (incluye lecciones)
   - `POST/GET/PUT/DELETE /api/courses/:courseId/lessons`
+
+# Hackaton09 - v0.3.1 migraciones y seeds
+Etapa con cambio de DBSync a migraciones e implementacion de seeds.
+
+## Notas de versión
+- Añadida infraestructura de migraciones con sequelize-cli.
+- Añadido el seeder de datos de prueba.
+- Ajuste quitando columna innecesaria birthdate de User.
+- Scripts npm actualizados.

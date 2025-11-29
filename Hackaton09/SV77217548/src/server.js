@@ -4,7 +4,7 @@ require('dotenv').config();
 const express = require('express');
 const routes = require('./routes');
 const {errorHandler, notFound} = require('./middlewares/error-handler');
-const {sequelize} = require('./models');
+//const {sequelize} = require('./models');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -22,6 +22,7 @@ app.use(errorHandler);
 
 app.listen(PORT, () => {
     console.log(`API lista en http://${DB_HOST}:${PORT}`);
+    /* Ahora uso migraciones con sequelize cli
     // Sincroniza al iniciar si DB_SYNC se configuró con alter o force
     const strategy = process.env.DB_SYNC || 'none';
     if (strategy !== 'none') {
@@ -30,4 +31,7 @@ app.listen(PORT, () => {
         .then(() => console.log(`[sync] strategy=${strategy}`))
         .catch((err) => console.error(err));
     }
+    */
 });
+
+

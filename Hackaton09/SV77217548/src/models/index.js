@@ -8,7 +8,6 @@ const User = sequelize.define('User',{
     firstName: {type: DataTypes.STRING, allowNull: false, validate: {len: [1, 100]}},
     lastName: {type: DataTypes.STRING, allowNull: false, validate: {len: [1, 100]}},
     email: {type: DataTypes.STRING, allowNull: false, unique: true, validate: {isEmail: true}},
-    birthdate: {type: DataTypes.DATEONLY, allowNull:false, defaultValue: DataTypes.NOW},
     passwordHash: {type: DataTypes.STRING, allowNull: false},
     role: {
         type: DataTypes.ENUM('admin', 'instructor', 'student'),
