@@ -8,19 +8,41 @@ const User = sequelize.define("User", {
     autoIncrement: true
   },
 
-  nombre: {
+  firstName: {
+    type: DataTypes.STRING,
+    allowNull: false,
+    validate: {
+      notEmpty: {
+        msg: "El apllido no puede estar vacío",
+      },
+    },
+  },
+
+  lastName: {
+    type: DataTypes.STRING,
+    allowNull: false,
+  },
+
+  email: {
+    type: DataTypes.STRING,
+    allowNull: false,
+    unique: true,
+    validate: { isEmail: true },
+  },
+
+  passwordHash: {
     type: DataTypes.STRING,
     allowNull: false
   },
 
-  correo: {
-    type: DataTypes.STRING,
+  role: {
+    type: DataTypes.ENUM("admin", "instructor", "student"),
     allowNull: false,
-    unique: true
+    defaultValue: "student"
   }
 }, {
-  tableName: "users",   
-  timestamps: false    
+  tableName: "users",
+  timestamps: true
 });
 
 module.exports = User;

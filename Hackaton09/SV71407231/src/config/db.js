@@ -14,12 +14,7 @@ const sequelize = new Sequelize(
 );
 
 async function syncDB() {
-    const mode = process.env.DB_SYNC || "alter";
-    await sequelize.sync({
-        alter: mode === "alter",
-        force: mode === "force",
-    });
-    console.log("Sincronización completada. Modo actual:", mode);
+  await sequelize.sync();
 }
 
 module.exports = { sequelize, syncDB };
