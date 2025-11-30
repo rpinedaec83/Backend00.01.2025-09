@@ -99,8 +99,8 @@ Roles:
 ## Configuración de Postman
 Configurar headers con:
 - Content-Type: application/json
-- Authorization: Bearer <TOKEN>
-(reemplaza "<TOKEN>" con el token generado al usuario correspondiente.)
+- Authorization: Bearer "TOKEN"
+(reemplaza "TOKEN" con comillas incluidas, con el token generado al usuario correspondiente.)
 
 ## Documentación de pruebas
 - `docs/requests.http`: colección con ejemplos listos (copialo en Postman).
