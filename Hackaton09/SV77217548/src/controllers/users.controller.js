@@ -1,5 +1,5 @@
 const bcrypt = require('bcrypt');
-const {User} = require('../models');
+const {User, Op} = require('../models');
 const {AppError} = require('../utils/app-error');
 const {buildPagination} = require('../utils/pagination');
 
@@ -11,7 +11,9 @@ async function createUser(req, res){
     const passwordHash = bcrypt.hashSync(password, 10);
     try{
         const user = await User.create({firstName, lastName, email, passwordHash, role: role || 'student'});
-        res.status(201).json(user);
+        const safe = user.toJSON();
+        delete safe.passwordHash;
+        res.status(201).json(safe);    // Para no mostrar el passwordHash
     } catch (err){
         if (err.name === 'SequelizeUniqueConstraintError'){
             throw new AppError('El email ya existe', 409);
@@ -27,10 +29,10 @@ async function listUsers(req, res){
     if (req.query.role) where.role = req.query.role;
     if (req.query.q){
         const q = `%${req.query.q.trim().toLowerCase()}%`;
-        where[User.sequelize.Op.or] = [
-            {firstName: {[User.sequelize.Op.iLike]: q}},
-            {lastName: {[User.sequelize.Op.iLike]: q}},
-            {email: {[User.sequelize.Op.iLike]: q}},
+        where[Op.or] = [
+            {firstName: {[Op.iLike]: q}},
+            {lastName: {[Op.iLike]: q}},
+            {email: {[Op.iLike]: q}},
         ];
     }
     const {rows, count} = await User.findAndCountAll({where, limit, offset, order: [['createdAt', 'DESC']]});

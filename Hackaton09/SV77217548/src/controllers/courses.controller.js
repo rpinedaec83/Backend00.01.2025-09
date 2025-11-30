@@ -73,7 +73,7 @@ async function getCourseBySlug(req, res) {
         ],
     });
     if (!course) throw new AppError('Curso no encontrado', 404);
-    const studentsCount = await course.countStudents({where: {status: 'active'}});
+    const studentsCount = await course.countStudents({through: {where: {status: 'active'}}});
     res.json({...course.toJSON(), stats: {lessonsCount: course.lessons.length, studentsCount}});
 }
 

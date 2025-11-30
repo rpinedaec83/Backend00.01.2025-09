@@ -36,7 +36,7 @@ async function updateLesson(req, res){
 async function deleteLesson(req, res){
     const deleted = await Lesson.destroy({where: {id: req.params.id}});
     if (!deleted) throw new AppError('Leccion no encontrada', 404);
-    res.json({message: 'Leccion eliminada (soft delete si aplica)'});
+    res.json({message: 'Leccion eliminada (soft delete)'});
 }
 
 async function restoreLesson(req, res){
