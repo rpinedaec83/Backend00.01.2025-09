@@ -3,7 +3,13 @@ const {AppError} = require('../utils/app-error');
 const {buildPagination} = require('../utils/pagination');
 
 async function createLesson(req, res){
-    const {title, body, order, courseId} = req.body;
+    const pathCourseId = req.params.courseId;
+    const bodyCourseId = req.body.courseId;
+    if (pathCourseId && bodyCourseId && Number(pathCourseId) !== Number(bodyCourseId)) {
+        throw new AppError('courseId del path y del body no coinciden', 400);
+    }
+    const courseId = pathCourseId || bodyCourseId;
+    const {title, body, order} = req.body;
     if (!title || !body || !courseId) throw new AppError('title, body y courseId son obligatorios', 400);
     const course = await Course.findByPk(courseId);
     if (!course) throw new AppError('Curso no encontrado', 404);
@@ -33,4 +39,11 @@ async function deleteLesson(req, res){
     res.json({message: 'Leccion eliminada (soft delete si aplica)'});
 }
 
-module.exports = {createLesson, listLessons, updateLesson, deleteLesson};
+async function restoreLesson(req, res){
+    const lesson = await Lesson.findByPk(req.params.id, {paranoid: false});
+    if (!lesson) throw new AppError('Leccion no encontrada', 404);
+    await Lesson.restore({where: {id: req.params.id}});
+    res.json({message: 'Leccion restaurada'});
+}
+
+module.exports = {createLesson, listLessons, updateLesson, deleteLesson, restoreLesson};

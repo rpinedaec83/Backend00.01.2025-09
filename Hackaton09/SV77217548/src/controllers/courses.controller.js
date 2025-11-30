@@ -1,6 +1,7 @@
-const {Course, Lesson, User, Op} = require('../models');
+const {Course, Lesson, User, Op, Enrollment, sequelize} = require('../models');
 const {AppError} = require('../utils/app-error');
 const {buildPagination} = require('../utils/pagination');
+const {invalidateCoursesCache} = require('../middlewares/cache');
 
 function parseOrder(orderParam){
     if (!orderParam) return [['createdAt', 'DESC']];
@@ -20,6 +21,7 @@ async function createCourse(req, res){
     if (metadata !== undefined && (typeof metadata !== 'object' || metadata === null)) throw new AppError('metadata debe ser un objeto JSON', 400);
     try {
         const course = await Course.create({title, description, ownerId, published: published ?? false, metadata: metadata ?? {}});
+        invalidateCoursesCache();
         res.status(201).json(course);
     } catch (err){
         if (err.name === 'SequelizeUniqueConstraintError') throw new AppError('El titulo o slug ya existe', 409);
@@ -34,6 +36,11 @@ async function listCourses(req, res){
     if (req.query.q){
         const q = `%${req.query.q.trim().toLowerCase()}%`;
         where[Op.or] = [{title: {[Op.iLike]: q}}, {description: {[Op.iLike]: q}}];
+    }
+    if (req.query.createdAt_gte || req.query.createdAt_lte) {
+        where.createdAt = {};
+        if (req.query.createdAt_gte) where.createdAt[Op.gte] = new Date(req.query.createdAt_gte);
+        if (req.query.createdAt_lte) where.createdAt[Op.lte] = new Date(req.query.createdAt_lte);
     }
     const order = parseOrder(req.query.order);
     const {rows, count} = await Course.findAndCountAll({
@@ -87,6 +94,7 @@ async function updateCourse(req, res){
     }
     try{
         await course.update({title, description, published, ownerId, metadata});
+        invalidateCoursesCache();
         res.json(course);
     } catch (err){
         if (err.name === 'SequelizeUniqueConstraintError') throw new AppError('El titulo o slug ya existe', 409);
@@ -108,7 +116,18 @@ async function deleteCourse(req, res) {
     if (req.user && !['admin', 'instructor'].includes(req.user.role) && req.user.id !== course.ownerId)
         throw new AppError('No autorizado para eliminar este curso', 403);
     await Course.destroy({where: {id: req.params.id}});
+    invalidateCoursesCache();
     res.json({message: 'Curso eliminado (soft delete)'});
 }
 
-module.exports = {createCourse, listCourses, getCourseBySlug, updateCourse, deleteCourse};
+async function restoreCourse(req, res){
+    const course = await Course.findByPk(req.params.id, {paranoid: false});
+    if (!course) throw new AppError('Curso no encontrado', 404);
+    if (req.user && !['admin', 'instructor'].includes(req.user.role) && req.user.id !== course.ownerId)
+        throw new AppError('No autorizado para restaurar este curso', 403);
+    await Course.restore({where: {id: req.params.id}});
+    invalidateCoursesCache();
+    res.json({message: 'Curso restaurado'});
+}
+
+module.exports = {createCourse, listCourses, getCourseBySlug, updateCourse, deleteCourse, restoreCourse};

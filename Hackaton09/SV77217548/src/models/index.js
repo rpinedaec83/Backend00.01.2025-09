@@ -68,6 +68,7 @@ const Lesson = sequelize.define('Lesson',{
 );
 
 const Enrollment = sequelize.define('Enrollment',{
+    id: {type: DataTypes.INTEGER, autoIncrement: true, primaryKey: true},
     status: {type: DataTypes.ENUM('pending', 'active'), allowNull: false, defaultValue: 'pending'},
     score: {type: DataTypes.DECIMAL(3, 1), allowNull: true, validate: {min: 0, max: 20}},
     courseId: {type: DataTypes.INTEGER, allowNull: false},
@@ -155,8 +156,8 @@ Lesson.addHook('beforeValidate', async (lesson) => {
 
 Comment.addHook('beforeValidate', (comment) => {
     if (comment.body) comment.body = comment.body.trim();
-    if (!comment.body || comment.body.length < 1){
-        throw new Error('El comentario debe tener al menos 1 caracter');
+    if (!comment.body || comment.body.length < 5){
+        throw new Error('El comentario debe tener al menos 5 caracteres');
     }
 });
 

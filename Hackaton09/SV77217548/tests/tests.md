@@ -148,6 +148,7 @@ curl -X POST http://localhost:3000/api/courses/999/lessons \
 # Recurso inexistente (404)
 curl http://localhost:3000/api/courses/99999
 ```
+
 ## Prueba v0.4 con auth y roles
 ```bash
 # 1) Migraciones + seed de prueba
@@ -163,24 +164,88 @@ curl -s -X POST http://localhost:3000/api/auth/login \
 # 3) Guarda el token en una variable para que no estes copiando y pegando varias veces
 TOKEN=...aqui va el token...
 
-# 3) Crear curso (debe funcionar con token de instructor)
+# 4) Crear curso (debe funcionar con token de instructor)
 curl -X POST http://localhost:3000/api/courses \
   -H "Authorization: Bearer $TOKEN" \
   -H "Content-Type: application/json" \
   -d '{"title":"Curso Nuevo","description":"Desc","ownerId":2,"published":false}'
 
-# 4) Login como student
+curl -X POST http://localhost:3000/api/users \
+  -H "Authorization: Bearer $TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{"firstName":"Brando","lastName":"Lopez","email":"student.2@example.com","password":"student_password"}'
+
+# 5) Login como student
 curl -s -X POST http://localhost:3000/api/auth/login \
   -H "Content-Type: application/json" \
   -d '{"email":"student@example.com","password":"student_password"}'
 
-# 3) Guarda el token en una variable para que no estes copiando y pegando varias veces
+# 6) Guarda el token en una variable para que no estes copiando y pegando varias veces
 TOKEN_STUDENT=...aqui va el token...
 
-# 5) Intentar crear curso con student (debe devolver 403)
+# 7) Intentar crear curso con student (debe devolver 403)
 curl -i -X POST http://localhost:3000/api/courses \
   -H "Authorization: Bearer $TOKEN_STUDENT" \
   -H "Content-Type: application/json" \
   -d '{"title":"Curso Nuevo 2","description":"Desc","ownerId":3,"published":false}'
 ```
 Requisitos: `JWT_SECRET` configurado en `.env`
+
+## Prueba v0.4/v0.5 con auth, roles y extras
+```bash
+# 1)  Migraciones + seed de prueba
+npm run db:migrate
+npm run db:seed
+npm run dev
+
+# 2) Login como instructor
+curl -s -X POST http://localhost:3000/api/auth/login \
+  -H "Content-Type: application/json" \
+  -d '{"email":"instructor@example.com","password":"instructor_password"}'
+
+# 3) Guarda el token en una variable para que no estes copiando y pegando varias veces
+TOKEN=...copia y pega aqui va el token...
+
+# 4) Crear curso (debe funcionar con token de instructor)
+curl -X POST http://localhost:3000/api/courses \
+  -H "Authorization: Bearer $TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{"title":"Curso Nuevo","description":"Desc","ownerId":2,"published":true}'
+
+# 5) Login como student
+curl -s -X POST http://localhost:3000/api/auth/login \
+  -H "Content-Type: application/json" \
+  -d '{"email":"student@example.com","password":"student_password"}'
+
+# 6) Guarda el token en una variable para que no estes copiando y pegando varias veces
+TOKEN_STUDENT=...copia y pega aqui va el token...
+
+# 7) Intentar crear curso con student (debe devolver 403)
+curl -i -X POST http://localhost:3000/api/courses \
+  -H "Authorization: Bearer $TOKEN_STUDENT" \
+  -H "Content-Type: application/json" \
+  -d '{"title":"Curso Nuevo 2","description":"Desc","ownerId":3,"published":false}'
+
+# 8) Inscribir (transacción: crea, activa, incrementa studentsCount)
+curl -X POST http://localhost:3000/api/courses/1/enrollments \
+  -H "Authorization: Bearer $TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{"userId":3}'
+
+# 9) Cambiar estado/score de inscripción
+curl -X PATCH http://localhost:3000/api/enrollments/1/status \
+  -H "Authorization: Bearer $TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{"status":"active","score":18}'
+
+# 10) Comentarios (student puede comentar)
+curl -X POST http://localhost:3000/api/lessons/1/comments \
+  -H "Authorization: Bearer $TOKEN_STUDENT" \
+  -H "Content-Type: application/json" \
+  -d '{"userId":3,"body":"Excelente curso"}'
+
+# 11) Restaurar curso/lección (solo admin/instructor)
+curl -X POST http://localhost:3000/api/courses/1/restore -H "Authorization: Bearer $TOKEN"
+curl -X POST http://localhost:3000/api/courses/1/lessons/1/restore -H "Authorization: Bearer $TOKEN"
+```
+Requisitos: `JWT_SECRET` y `COURSES_CACHE_TTL` configurado en `.env` .

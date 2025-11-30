@@ -1,5 +1,5 @@
 const express = require('express');
-const {createLesson, listLessons, updateLesson, deleteLesson} = require('../controllers/lessons.controller');
+const {createLesson, listLessons, updateLesson, deleteLesson, restoreLesson} = require('../controllers/lessons.controller');
 const {asyncHandler} = require('../utils/async-handler');
 const {authenticate, authorizeRoles} = require('../middlewares/auth');
 
@@ -9,5 +9,6 @@ router.post('/', authenticate, authorizeRoles('admin', 'instructor'), asyncHandl
 router.get('/', asyncHandler(listLessons));
 router.put('/:id', authenticate, authorizeRoles('admin', 'instructor'), asyncHandler(updateLesson));
 router.delete('/:id', authenticate, authorizeRoles('admin', 'instructor'), asyncHandler(deleteLesson));
+router.post('/:id/restore', authenticate, authorizeRoles('admin', 'instructor'), asyncHandler(restoreLesson));
 
 module.exports = router;

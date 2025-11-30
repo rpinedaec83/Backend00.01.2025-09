@@ -27,11 +27,24 @@ Etapa con CRUD básico de usuarios, cursos y lecciones.
   - `GET /api/courses/:id` (incluye lecciones)
   - `POST/GET/PUT/DELETE /api/courses/:courseId/lessons`
 
+
 # Hackaton09 - v0.3.1 migraciones y seeds
-Etapa con cambio de DBSync a migraciones e implementacion de seeds.
+Etapa con cambio de DBSync a migraciones e implementación de seeds.
 
 ## Notas de versión
 - Añadida infraestructura de migraciones con sequelize-cli.
 - Añadido el seeder de datos de prueba.
 - Ajuste quitando columna innecesaria birthdate de User.
 - Scripts npm actualizados.
+
+
+# Hackaton09 - v0.5 API con roles, enrollments y comments
+Etapa con autenticación.
+
+## Notas de versión
+- Autenticación JWT (`/api/auth/register`, `/api/auth/login`) y roles (admin/instructor/student).
+- Cursos con filtros `q`, `published`, rangos `createdAt_gte/lte`, slug auto generado y cache simple; soft delete y restore.
+- Lecciones con `order` incremental por curso, soft delete y restore.
+- Enrollments: evita duplicados, cuenta alumnos, `PATCH /enrollments/:id/status` ajusta `studentsCount`.
+- Comments con validación mínima en hook y autor tomado del token.
+
