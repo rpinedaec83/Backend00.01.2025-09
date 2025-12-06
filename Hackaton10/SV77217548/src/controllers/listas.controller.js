@@ -29,7 +29,7 @@ function sanitizeItem(item){
 async function crearLista(req, res) {
     const db = await getDB();
     const {titulo, items} = req.body;
-    const ownerId = req.userId;
+    const ownerId = String(req.userId || '');
 
     if (!titulo || !Array.isArray(items) || items.length === 0){
         return res.status(400).json({message: 'Se requiere titulo e items'});
@@ -53,6 +53,8 @@ async function crearLista(req, res) {
         items: itemsSanitizados,
         createdAt: new Date(),
         updatedAt: new Date(),
+        eliminado: false,
+        deletedAt: null,
     };
 
     const resultado = await db.collection(COLLECTION).insertOne(doc);
@@ -61,10 +63,10 @@ async function crearLista(req, res) {
 
 async function listarListas(req, res){
     const db = await getDB();
-    const ownerId = req.userId;
+    const ownerId = String(req.userId || '');
     const listas = await db
         .collection(COLLECTION)
-        .find({ownerId})
+        .find({ownerId, eliminado: {$ne: true}})
         .sort({createdAt: -1})
         .toArray();
     res.status(200).json({data: listas});
@@ -72,14 +74,14 @@ async function listarListas(req, res){
 
 async function obtenerLista(req, res) {
     const { id } = req.params;
-    const ownerId = req.userId;
+    const ownerId = String(req.userId || '');
     if (!ObjectId.isValid(id)){
         return res.status(400).json({message: 'Id no valido'});
     }
     const db = await getDB();
     const lista = await db
         .collection(COLLECTION)
-        .findOne({_id: new ObjectId(id), ownerId});
+        .findOne({_id: new ObjectId(id), ownerId, eliminado: {$ne: true}});
     if (!lista){
         return res.status(404).json({message: 'Lista no encontrada'});
     }
@@ -88,14 +90,14 @@ async function obtenerLista(req, res) {
 
 async function duplicarLista(req, res){
     const {id} = req.params;
-    const ownerId = req.userId;
+    const ownerId = String(req.userId || '');
     if (!ObjectId.isValid(id)){
         return res.status(400).json({message: 'Id no valido'});
     }
     const db = await getDB();
     const original = await db
         .collection(COLLECTION)
-        .findOne({_id: new ObjectId(id), ownerId});
+        .findOne({_id: new ObjectId(id), ownerId, eliminado: {$ne: true}});
     if (!original){
         return res.status(404).json({message: 'Lista no encontrada'});
     }
@@ -124,7 +126,7 @@ async function duplicarLista(req, res){
 async function marcarItem(req, res){
     const {id, itemId} = req.params;
     const {esCompletado} = req.body;
-    const ownerId = req.userId;
+    const ownerId = String(req.userId || '');
 
     if (!ObjectId.isValid(id) || !ObjectId.isValid(itemId)){
         return res.status(400).json({message: 'Id no valido'});
@@ -136,7 +138,7 @@ async function marcarItem(req, res){
     const db = await getDB();
     const lista = await db
         .collection(COLLECTION)
-        .findOne({_id: new ObjectId(id), ownerId});
+        .findOne({_id: new ObjectId(id), ownerId, eliminado: {$ne: true}});
     if (!lista){
         return res.status(404).json({message: 'Lista no encontrada'});
     }
@@ -149,12 +151,78 @@ async function marcarItem(req, res){
 
     const estado = buildEstado(items);
     const updated = await db.collection(COLLECTION).findOneAndUpdate(
-        { _id: new ObjectId(id), ownerId },
+        {_id: new ObjectId(id), ownerId, eliminado: {$ne: true}},
         {$set: {items, estado, updatedAt: new Date()}},
         {returnDocument: 'after'}
     );
+    const updatedDoc = updated?.value ?? updated;
+    if (!updatedDoc){
+        return res.status(404).json({message: 'Lista no encontrada'});
+    }
 
-    res.status(200).json({data: updated.value});
+    res.status(200).json({data: updatedDoc});
 }
 
-module.exports = {crearLista, listarListas, obtenerLista, duplicarLista, marcarItem};
+async function actualizarLista(req, res){
+    const {id} = req.params;
+    const ownerId = String(req.userId || '');
+    const {titulo, items} = req.body;
+
+    if (!ObjectId.isValid(id)){
+        return res.status(400).json({message: 'Id no valido'});
+    }
+    if (!titulo || !Array.isArray(items) || items.length === 0){
+        return res.status(400).json({message: 'Se requiere titulo e items'});
+    }
+    const faltantes = items.filter((it) => !it.nombre || !it.descripcion || !it.fecha);
+    if (faltantes.length > 0){
+        return res.status(400).json({message: 'Todos los items necesitan nombre, descripcion y fecha (dd/mm/aa)'});
+    }
+
+    const itemsSanitizados = items.map((it) => {
+        const fecha = parseDdMmYyToDate(it.fecha);
+        return{
+            _id: it._id && ObjectId.isValid(it._id) ? new ObjectId(it._id) : new ObjectId(),
+            nombre: it.nombre,
+            descripcion: it.descripcion || '',
+            fecha,
+            esCompletado: it.esCompletado === true,
+            creadoEn: it.creadoEn ? new Date(it.creadoEn) : new Date(),
+            completadoEn: it.esCompletado ? (it.completadoEn ? new Date(it.completadoEn) : new Date()) : null,
+        };
+    });
+
+    const estado = buildEstado(itemsSanitizados);
+    const db = await getDB();
+    const resultado = await db.collection(COLLECTION).findOneAndUpdate(
+        {_id: new ObjectId(id), ownerId, eliminado: {$ne: true}},
+        {$set: {titulo, items: itemsSanitizados, estado, updatedAt: new Date()}},
+        {returnDocument: 'after'}
+    );
+    const updatedDoc = resultado?.value ?? resultado;
+    if (!updatedDoc){
+        return res.status(404).json({message: 'Lista no encontrada'});
+    }
+    res.status(200).json({data: updatedDoc});
+}
+
+async function eliminarLista(req, res){
+    const {id} = req.params;
+    const ownerId = String(req.userId || '');
+    if (!ObjectId.isValid(id)){
+        return res.status(400).json({message: 'Id no valido'});
+    }
+    const db = await getDB();
+    const resultado = await db.collection(COLLECTION).findOneAndUpdate(
+        {_id: new ObjectId(id), ownerId, eliminado: {$ne: true}},
+        {$set: {eliminado: true, deletedAt: new Date(), updatedAt: new Date()}},
+        {returnDocument: 'after'}
+    );
+    const deletedDoc = resultado?.value ?? resultado;
+    if (!deletedDoc){
+        return res.status(404).json({message: 'Lista no encontrada'});
+    }
+    res.status(200).json({data: deletedDoc});
+}
+
+module.exports = {crearLista, listarListas, obtenerLista, duplicarLista, marcarItem, eliminarLista, actualizarLista};

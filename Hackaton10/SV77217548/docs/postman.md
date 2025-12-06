@@ -68,3 +68,26 @@ Usa `Authorization: Bearer {{token}}` en las rutas de listas.
 ```json
 {"esCompletado": true}
 ```
+
+## Editar una lista completa (titulo e items)
+- Metodo: PATCH
+- URL: `http://localhost:8080/api/listas/{{listaId}}`
+- Header: `Authorization: Bearer`
+- Body (raw JSON):
+```json
+{
+  "titulo": "Compras Semana 1 (editado)",
+  "items": [
+    {"_id": "{{itemId1}}", "nombre": "Arroz", "descripcion": "1kg", "fecha": "07/12/25", "esCompletado": false},
+    {"_id": "{{itemId2}}", "nombre": "Leche", "descripcion": "2L", "fecha": "07/12/25", "esCompletado": true}
+  ]
+}
+```
+Notas:
+- Incluye `_id` de cada item si ya existe; si omites `_id` se asignará uno nuevo.
+- `fecha` acepta `dd/mm/aa`.
+
+## Eliminar lista (soft delete)
+- Metodo: DELETE
+- URL: `http://localhost:8080/api/listas/{{listaId}}`
+- Header: `Authorization: Bearer`

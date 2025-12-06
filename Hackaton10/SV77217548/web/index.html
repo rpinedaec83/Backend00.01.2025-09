@@ -76,12 +76,31 @@
           <span id="detailEstado" class="badge"></span>
         </div>
         <div class="actions">
+          <button id="showEdit" type="button" class="secondary">Editar</button>
           <button id="toggleAllDetails" type="button">Mostrar todos</button>
           <button id="duplicateList" type="button">Duplicar</button>
+          <button id="deleteList" type="button" class="secondary">Eliminar</button>
         </div>
       </div>
       <div id="itemsList" class="list"></div>
       <div id="detailStatus" class="status"></div>
+    </section>
+
+    <section id="editSection" class="card hidden">
+      <div class="actions">
+        <h2>Editar lista</h2>
+        <button id="cancelEdit" type="button">Cancelar</button>
+      </div>
+      <form id="editForm">
+        <label>Título <input name="titulo" type="text" required /></label>
+        <div class="actions">
+          <span>Productos</span>
+          <button type="button" id="addEditItem">Agregar producto</button>
+        </div>
+        <div id="editItemsContainer" class="list"></div>
+        <button type="submit">Guardar cambios</button>
+        <div id="editStatus" class="status"></div>
+      </form>
     </section>
   </main>
 

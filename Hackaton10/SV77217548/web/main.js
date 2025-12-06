@@ -8,6 +8,7 @@ const ui = {
     listsSection: el('listsSection'),
     createSection: el('createSection'),
     detailSection: el('detailSection'),
+    editSection: el('editSection'),
     registerForm: el('registerForm'),
     loginForm: el('loginForm'),
     authStatus: el('authStatus'),
@@ -27,6 +28,13 @@ const ui = {
     backToLists: el('backToLists'),
     duplicateList: el('duplicateList'),
     toggleAllDetails: el('toggleAllDetails'),
+    deleteList: el('deleteList'),
+    showEdit: el('showEdit'),
+    editForm: el('editForm'),
+    editItemsContainer: el('editItemsContainer'),
+    addEditItem: el('addEditItem'),
+    editStatus: el('editStatus'),
+    cancelEdit: el('cancelEdit'),
 };
 
 const state = {
@@ -68,7 +76,7 @@ async function api(path, opts = {}){
 }
 
 function show(view){
-    ['authSection', 'listsSection', 'createSection', 'detailSection'].forEach((id) => {
+    ['authSection', 'listsSection', 'createSection', 'detailSection', 'editSection'].forEach((id) => {
         ui[id].classList.add('hidden');
     });
     ui[view].classList.remove('hidden');
@@ -247,11 +255,10 @@ async function toggleItem(listaId, itemId, checked){
             method: 'PATCH',
             body: JSON.stringify({ esCompletado: checked }),
         });
-        // Reconsulta detalle y listado para sincronizar visualmente
         const detalle = await api(`/listas/${listaId}`, {method: 'GET'});
-            if (detalle && detalle.data){
-                state.current = detalle.data;
-                state.listas = state.listas.map((l) => (asId(l._id) === asId(listaId) ? detalle.data : l));
+        if (detalle && detalle.data){
+            state.current = detalle.data;
+            state.listas = state.listas.map((l) => (asId(l._id) === asId(listaId) ? detalle.data : l));
         }
         renderDetail();
         await loadListas();
@@ -261,11 +268,11 @@ async function toggleItem(listaId, itemId, checked){
     }
 }
 
-function formatInputDate(date) {
-  const dd = String(date.getDate()).padStart(2, '0');
-  const mm = String(date.getMonth() + 1).padStart(2, '0');
-  const yy = String(date.getFullYear()).slice(-2);
-  return `${dd}/${mm}/${yy}`;
+function formatInputDate(date){
+    const dd = String(date.getDate()).padStart(2, '0');
+    const mm = String(date.getMonth() + 1).padStart(2, '0');
+    const yy = String(date.getFullYear()).slice(-2);
+    return `${dd}/${mm}/${yy}`;
 }
 
 function addItemRow(){
@@ -286,6 +293,59 @@ function addItemRow(){
     ui.itemsContainer.appendChild(row);
 }
 
+function addEditItemRow(item = {}){
+    const row = document.createElement('div');
+    row.className = 'item-row';
+    const today = formatInputDate(new Date());
+    const fechaVal = item.fecha ? formatInputDate(new Date(item.fecha)) : today;
+
+    const idInput = document.createElement('input');
+    idInput.type = 'hidden';
+    idInput.dataset.field = 'id';
+    idInput.value = item._id ? asId(item._id) : '';
+
+    const nombre = document.createElement('input');
+    nombre.type = 'text';
+    nombre.required = true;
+    nombre.placeholder = 'Nombre del producto';
+    nombre.dataset.field = 'nombre';
+    nombre.value = item.nombre || '';
+
+    const descripcion = document.createElement('input');
+    descripcion.type = 'text';
+    descripcion.required = true;
+    descripcion.placeholder = 'Descripcion';
+    descripcion.dataset.field = 'descripcion';
+    descripcion.value = item.descripcion || '';
+
+    const fecha = document.createElement('input');
+    fecha.type = 'text';
+    fecha.required = true;
+    fecha.placeholder = 'dd/mm/aa';
+    fecha.dataset.field = 'fecha';
+    fecha.value = fechaVal;
+
+    const statusWrap = document.createElement('div');
+    statusWrap.className = 'inline';
+    const cb = document.createElement('input');
+    cb.type = 'checkbox';
+    cb.dataset.field = 'esCompletado';
+    cb.checked = !!item.esCompletado;
+    const lbl = document.createElement('span');
+    lbl.className = 'muted';
+    lbl.textContent = 'Completado';
+    statusWrap.append(cb, lbl);
+
+    const remove = document.createElement('button');
+    remove.type = 'button';
+    remove.textContent = 'Quitar';
+    remove.className = 'remove';
+    remove.onclick = () => row.remove();
+
+    row.append(idInput, nombre, descripcion, fecha, statusWrap, remove);
+    ui.editItemsContainer.appendChild(row);
+}
+
 function getItemsFromForm(){
     const rows = Array.from(ui.itemsContainer.querySelectorAll('.item-row'));
     const items = [];
@@ -298,6 +358,31 @@ function getItemsFromForm(){
             nombre: nombre.value.trim(),
             descripcion: descripcion.value.trim(),
             fecha: fecha.value.trim(),
+        });
+    });
+    if (!items.length) throw new Error('Agrega al menos un producto');
+    return items;
+}
+
+function getItemsFromEdit(){
+    const rows = Array.from(ui.editItemsContainer.querySelectorAll('.item-row'));
+    const items = [];
+    rows.forEach((row) => {
+        const nombre = row.querySelector('input[data-field="nombre"]');
+        const descripcion = row.querySelector('input[data-field="descripcion"]');
+        const fecha = row.querySelector('input[data-field="fecha"]');
+        const cb = row.querySelector('input[data-field="esCompletado"]');
+        const idInput = row.querySelector('input[data-field="id"]');
+        if (!nombre || !descripcion || !fecha || !cb) throw new Error('Formulario incompleto');
+        if (!nombre.value.trim() || !descripcion.value.trim() || !fecha.value.trim()){
+            throw new Error('Todos los productos necesitan nombre, descripcion y fecha');
+        }
+        items.push({
+            _id: idInput?.value ? idInput.value : undefined,
+            nombre: nombre.value.trim(),
+            descripcion: descripcion.value.trim(),
+            fecha: fecha.value.trim(),
+            esCompletado: cb.checked,
         });
     });
     if (!items.length) throw new Error('Agrega al menos un producto');
@@ -341,6 +426,71 @@ async function onDuplicate(){
     }
 }
 
+async function onEditSubmit(e){
+    e.preventDefault();
+    if (!state.current) return;
+    const titulo = e.target.titulo.value.trim();
+    try{
+        const items = getItemsFromEdit();
+        setStatus(ui.editStatus, 'Guardando cambios...');
+        const res = await api(`/listas/${asId(state.current._id)}`,{
+            method: 'PATCH',
+            body: JSON.stringify({ titulo, items }),
+        });
+        if (!res || !res.data) throw new Error('Respuesta sin datos');
+        state.current = res.data;
+        state.listas = state.listas.map((l) => (asId(l._id) === asId(res.data._id) ? res.data : l));
+        renderListas();
+        renderDetail();
+        show('detailSection');
+        setStatus(ui.editStatus, 'Cambios guardados');
+    } catch (err){
+        setStatus(ui.editStatus, err.message, true);
+    }
+}
+
+async function onDeleteList(){
+    if (!state.current) return;
+    const ok = window.confirm('¿Eliminar esta lista? Se marcará como eliminada.');
+    if (!ok) return;
+    try{
+        setStatus(ui.detailStatus, 'Eliminando...');
+        await api(`/listas/${asId(state.current._id)}`,{method: 'DELETE'});
+        const deletedId = asId(state.current._id);
+        state.listas = state.listas.filter((l) => asId(l._id) !== deletedId);
+        state.current = null;
+        renderListas();
+        show('listsSection');
+        setStatus(ui.detailStatus, '');
+    } catch (err){
+        if ((err.message || '').toLowerCase().includes('no encontrada')){
+            const deletedId = asId(state.current?._id);
+            state.listas = state.listas.filter((l) => asId(l._id) !== deletedId);
+            state.current = null;
+            renderListas();
+            show('listsSection');
+            setStatus(ui.detailStatus, '');
+        } else{
+            setStatus(ui.detailStatus, err.message, true);
+        }
+    }
+}
+
+function openEdit(){
+    if (!state.current){
+        setStatus(ui.detailStatus, 'No hay lista seleccionada', true);
+        return;
+    }
+    ui.editForm.titulo.value = state.current.titulo;
+    ui.editItemsContainer.innerHTML = '';
+    (state.current.items || []).forEach((it) => addEditItemRow(it));
+    if (!state.current.items || state.current.items.length === 0){
+        addEditItemRow();
+    }
+    setStatus(ui.editStatus, '');
+    show('editSection');
+}
+
 function handleLogout(){
     saveSession('', '');
     state.listas = [];
@@ -378,6 +528,11 @@ function init() {
         ui.toggleAllDetails.textContent = state.expandAll ? 'Ocultar todos' : 'Mostrar todos';
         renderDetail();
     });
+    ui.deleteList.addEventListener('click', onDeleteList);
+    ui.showEdit.addEventListener('click', openEdit);
+    ui.addEditItem.addEventListener('click', () => addEditItemRow());
+    ui.editForm.addEventListener('submit', onEditSubmit);
+    ui.cancelEdit.addEventListener('click', () => show('detailSection'));
 
     addItemRow();
 
