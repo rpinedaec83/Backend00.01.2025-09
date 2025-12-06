@@ -43,7 +43,6 @@
       <div class="actions">
         <h2>Mis listas de compras</h2>
         <div class="actions">
-          <button id="refreshLists">Actualizar</button>
           <button id="showCreate">Crear lista</button>
           <button id="logout">Cerrar sesión</button>
         </div>
@@ -76,7 +75,10 @@
           <h2 id="detailTitle"></h2>
           <span id="detailEstado" class="badge"></span>
         </div>
-        <button id="duplicateList" type="button">Duplicar</button>
+        <div class="actions">
+          <button id="toggleAllDetails" type="button">Mostrar todos</button>
+          <button id="duplicateList" type="button">Duplicar</button>
+        </div>
       </div>
       <div id="itemsList" class="list"></div>
       <div id="detailStatus" class="status"></div>

@@ -13,7 +13,7 @@ API con autenticacion JWT y listas de compras por usuario. Cada lista contiene p
 
 ## Rutas (prefijo `/api`)
 ### Auth
-- `POST /auth/register` `{email, password}` (min 6). Devuelve `token`.
+- `POST /auth/register` `{email, password}` (min 5). Devuelve `token`.
 - `POST /auth/login` `{email, password}`. Devuelve `token`.
 
 ### Listas (requiere header `Authorization: Bearer <token>`)

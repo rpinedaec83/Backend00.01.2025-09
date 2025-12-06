@@ -13,7 +13,6 @@ const ui = {
     authStatus: el('authStatus'),
     listsContainer: el('listsContainer'),
     listsStatus: el('listsStatus'),
-    refreshLists: el('refreshLists'),
     logout: el('logout'),
     showCreate: el('showCreate'),
     createForm: el('createForm'),
@@ -27,6 +26,7 @@ const ui = {
     detailStatus: el('detailStatus'),
     backToLists: el('backToLists'),
     duplicateList: el('duplicateList'),
+    toggleAllDetails: el('toggleAllDetails'),
 };
 
 const state = {
@@ -35,6 +35,7 @@ const state = {
     email: localStorage.getItem('email') || '',
     listas: [],
     current: null,
+    expandAll: false,
 };
 
 function setStatus(target, text, isError = false){
@@ -128,6 +129,12 @@ function estadoBadge(estado){
     return map[estado] || {text: estado, cls: ''};
 }
 
+function asId(val){
+    if (!val) return '';
+    if (typeof val === 'object' && '$oid' in val) return val.$oid;
+    return String(val);
+}
+
 async function loadListas(){
     try{
         setStatus(ui.listsStatus, 'Cargando...');
@@ -156,7 +163,7 @@ function renderListas(){
         const badgeInfo = estadoBadge(l.estado);
         const btn = document.createElement('button');
         btn.textContent = 'Abrir';
-        btn.onclick = () => selectLista(l._id);
+        btn.onclick = () => selectLista(asId(l._id));
         const badge = document.createElement('span');
         badge.className = `badge ${badgeInfo.cls}`;
         badge.textContent = badgeInfo.text;
@@ -193,7 +200,11 @@ function renderDetail(){
     ui.itemsList.innerHTML = '';
     (l.items || []).forEach((it) => {
         const row = document.createElement('div');
-        row.className = 'list-item';
+        row.className = 'list-item item-block';
+
+        const header = document.createElement('div');
+        header.className = 'item-header';
+
         const left = document.createElement('div');
         left.style.display = 'flex';
         left.style.alignItems = 'center';
@@ -201,14 +212,30 @@ function renderDetail(){
         const cb = document.createElement('input');
         cb.type = 'checkbox';
         cb.checked = !!it.esCompletado;
-        cb.onchange = () => toggleItem(l._id, it._id, cb.checked);
+        cb.onchange = () => toggleItem(asId(l._id), asId(it._id), cb.checked);
         const name = document.createElement('div');
         name.textContent = it.nombre;
         left.append(cb, name);
-        const date = document.createElement('div');
-        date.className = 'muted';
-        date.textContent = new Date(it.fecha).toLocaleDateString('es-PE');
-        row.append(left, date);
+
+        const toggleBtn = document.createElement('button');
+        toggleBtn.type = 'button';
+        toggleBtn.textContent = state.expandAll ? 'Ocultar' : 'Mostrar más';
+        toggleBtn.className = 'link-btn';
+
+        const details = document.createElement('div');
+        details.className = 'item-details';
+        const fechaText = new Date(it.fecha).toLocaleDateString('es-PE');
+        details.innerHTML = `<div><strong>Descripción:</strong> ${it.descripcion || ''}</div><div class="muted"><strong>Fecha:</strong> ${fechaText}</div>`;
+        details.style.display = state.expandAll ? 'block' : 'none';
+
+        toggleBtn.onclick = () => {
+            const visible = details.style.display === 'block';
+            details.style.display = visible ? 'none' : 'block';
+            toggleBtn.textContent = visible ? 'Mostrar más' : 'Ocultar';
+        };
+
+        header.append(left, toggleBtn);
+        row.append(header, details);
         ui.itemsList.appendChild(row);
     });
 }
@@ -216,29 +243,39 @@ function renderDetail(){
 async function toggleItem(listaId, itemId, checked){
     try{
         setStatus(ui.detailStatus, 'Actualizando...');
-        const res = await api(`/listas/${listaId}/items/${itemId}`,{
+        await api(`/listas/${listaId}/items/${itemId}`,{
             method: 'PATCH',
             body: JSON.stringify({ esCompletado: checked }),
         });
-        if (res && res.data){
-            state.current = res.data;
-            state.listas = state.listas.map((l) => (l._id === listaId ? res.data : l));
-            renderDetail();
-            renderListas();
+        // Reconsulta detalle y listado para sincronizar visualmente
+        const detalle = await api(`/listas/${listaId}`, {method: 'GET'});
+            if (detalle && detalle.data){
+                state.current = detalle.data;
+                state.listas = state.listas.map((l) => (asId(l._id) === asId(listaId) ? detalle.data : l));
         }
+        renderDetail();
+        await loadListas();
         setStatus(ui.detailStatus, 'Lista actualizada correctamente');
     } catch (err){
         setStatus(ui.detailStatus, err.message, true);
     }
 }
 
+function formatInputDate(date) {
+  const dd = String(date.getDate()).padStart(2, '0');
+  const mm = String(date.getMonth() + 1).padStart(2, '0');
+  const yy = String(date.getFullYear()).slice(-2);
+  return `${dd}/${mm}/${yy}`;
+}
+
 function addItemRow(){
     const row = document.createElement('div');
     row.className = 'item-row';
+    const today = formatInputDate(new Date());
     row.innerHTML = `
         <input type="text" placeholder="Nombre del producto" required />
         <input type="text" placeholder="Descripción" required />
-        <input type="text" placeholder="dd/mm/aa" required />
+        <input type="text" placeholder="dd/mm/aa" required value="${today}" />
     `;
     const remove = document.createElement('button');
     remove.type = 'button';
@@ -294,8 +331,7 @@ async function onDuplicate(){
     if (!state.current) return;
     try{
         setStatus(ui.detailStatus, 'Duplicando...');
-        const res = await api(`/listas/${state.current._id}/duplicar`,{
-            method: 'POST'});
+        const res = await api(`/listas/${asId(state.current._id)}/duplicar`, {method: 'POST'});
         if (!res || !res.data) throw new Error('Respuesta sin datos');
         state.listas = [res.data, ...state.listas];
         renderListas();
@@ -330,7 +366,6 @@ function init() {
     initBaseUrl();
     ui.registerForm.addEventListener('submit', onRegister);
     ui.loginForm.addEventListener('submit', onLogin);
-    ui.refreshLists.addEventListener('click', loadListas);
     ui.logout.addEventListener('click', handleLogout);
     ui.showCreate.addEventListener('click', () => show('createSection'));
     ui.cancelCreate.addEventListener('click', () => show('listsSection'));
@@ -338,6 +373,11 @@ function init() {
     ui.createForm.addEventListener('submit', onCreate);
     ui.backToLists.addEventListener('click', () => show('listsSection'));
     ui.duplicateList.addEventListener('click', onDuplicate);
+    ui.toggleAllDetails.addEventListener('click', () => {
+        state.expandAll = !state.expandAll;
+        ui.toggleAllDetails.textContent = state.expandAll ? 'Ocultar todos' : 'Mostrar todos';
+        renderDetail();
+    });
 
     addItemRow();
 
