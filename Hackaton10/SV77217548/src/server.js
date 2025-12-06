@@ -2,6 +2,7 @@ console.log('Inicio de la aplicacion');
 
 require('dotenv').config();
 
+const cors = require('cors'); // Para poder usar mi front desde otro puerto
 const express = require('express');
 const routes = require('./routes');
 const {notFound, errorHandler} = require('./middlewares/error-handler');
@@ -10,6 +11,7 @@ const {getDB} = require('./db');
 const app = express();
 const PORT = process.env.PORT || 8080;
 
+app.use(cors());
 app.use(express.json());
 
 app.get('/health', (req, res) => {

@@ -9,7 +9,9 @@ function parseDdMmYyToDate(fechaStr){
         return new Date(fechaStr);
     }
     const fullYear = aa < 100 ? 2000 + aa : aa;
-    const date = new Date(Date.UTC(fullYear, mm - 1, dd));
+    //const date = new Date(Date.UTC(fullYear, mm - 1, dd));
+    // Cambio para usar fecha local para evitar desfase por zona horaria
+    const date = new Date(fullYear, mm - 1, dd);
     return Number.isNaN(date.getTime()) ? new Date() : date;
 }
 
