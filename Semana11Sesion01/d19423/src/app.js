@@ -9,6 +9,8 @@ const error = require('./middlewares/error');
 
 const connectDB = require('./db');
 
+const authorRoute = require('./routes/author.route')
+const bookRoute = require('./routes/book.route')
 
 const app = express();
 const PORT = process.env.PORT || 8080;
@@ -20,6 +22,9 @@ app.use(error);
 app.get('/',(req,res)=>{
     res.send({message:"ok"})
 })
+
+app.use('/api/author', authorRoute);
+app.use('/api/book',bookRoute)
 
 connectDB().then(
 app.listen(PORT, ()=>{
