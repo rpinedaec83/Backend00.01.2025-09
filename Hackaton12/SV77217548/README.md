@@ -9,11 +9,11 @@ node server.js
 ```
 El servidor arranca por defecto en `http://localhost:3000` (puedes cambiar el puerto con la variable de entorno `PORT`).
 
-## Endpoints (v0.2)
+## Endpoints (v0.3)
 - `GET /api/lista` -> devuelve todo el arreglo `listSales`.
 - `GET /api/lista/pendientes` -> filtra items con `esCompletado === false`.
 - `GET /api/lista/completados` -> filtra items con `esCompletado === true`.
-- `POST /api/lista` -> crea un registro en memoria.
+- `POST /api/lista` -> crea un registro con `id` autogenerado.
   - Body ejemplo:
     ```json
     {
@@ -23,10 +23,14 @@ El servidor arranca por defecto en `http://localhost:3000` (puedes cambiar el pu
       "esCompletado": true
     }
     ```
-  - Validacion: `name`, `description`, `date` deben ser `string`; `esCompletado` debe ser `boolean`.
+  - Validación: `name`, `description`, `date` deben ser `string`; `esCompletado` debe ser `boolean`.
   - Respuestas:
     - 201 con el item creado.
     - 400 `{"message": "faltan campos"}` si hay campos faltantes o tipos incorrectos.
     - 400 `{"message": "invalid json"}` si el body no es JSON valido.
+- `PUT /api/lista/:id` -> actualiza `esCompletado` de un item.
+  - Body: `{"esCompletado": true}` (o `false`).
+  - Respuestas: 200 con el item actualizado; 400 por validación; 404 si el `id` no existe.
+- `DELETE /api/lista/:id` -> elimina un item por `id`. Responde 200 con el item eliminado o 404 si no existe.
 
 Rutas inexistentes responden 404 `{"message": "endpoint not found"}`.

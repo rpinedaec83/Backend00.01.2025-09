@@ -1,4 +1,5 @@
 const http = require('node:http');
+const crypto = require('node:crypto');
 
 const listSales = [];
 
@@ -57,11 +58,37 @@ const server = http.createServer((req, res) => {
                 if (faltaCampo){
                     return sendJson(res, 400, {message: 'faltan campos'});
                 }
-                const newItem = {name, description, date, esCompletado};
+                const newItem = {id: crypto.randomUUID(), name, description, date, esCompletado};
                 listSales.push(newItem);
                 return sendJson(res, 201, newItem);
             })
             .catch(() => sendJson(res, 400, {message: 'invalid json'}));
+    }
+
+    if ((method === 'PUT' || method === 'DELETE') && url.startsWith('/api/lista/')){
+        const parts = url.split('/');
+        const id = parts[3];
+        if (!id){
+            return sendJson(res, 404, {message: 'endpoint not found'});
+        }
+        const index = listSales.findIndex((item) => item.id === id);
+        if (index === -1){
+            return sendJson(res, 404, {message: 'item not found'});
+        }
+        if (method === 'PUT'){
+            return getJsonBody(req)
+                .then((body) => {
+                    const {esCompletado} = body;
+                    if (typeof esCompletado !== 'boolean'){
+                        return sendJson(res, 400, {message: 'faltan campos'});
+                    }
+                    listSales[index].esCompletado = esCompletado;
+                    return sendJson(res, 200, listSales[index]);
+                })
+                .catch(() => sendJson(res, 400, {message: 'invalid json'}));
+        }
+        const removed = listSales.splice(index,1)[0];
+        return sendJson(res, 200, removed);
     }
     return sendJson(res, 404, {message: 'endpoint not found'});
 });
