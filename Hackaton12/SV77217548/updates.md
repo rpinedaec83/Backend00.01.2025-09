@@ -1,3 +1,7 @@
+## v0.4 - Persistencia y filtros por query
+- Se agrega persistencia en archivo `listSales.json` (lectura al iniciar y guardado en POST/PUT/DELETE).
+- `GET /api/lista` ahora acepta query param `status=pendiente|completado` para filtrar.
+
 ## v0.3 - IDs con crypto y métodos PUT, DELETE
 - Se agrega `id` autogenerado en cada registro creado.
 - Se implementan endpoints: `PUT /api/lista/:id` para actualizar `esCompletado` y `DELETE /api/lista/:id` para eliminar.

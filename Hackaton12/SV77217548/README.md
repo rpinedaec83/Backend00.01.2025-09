@@ -9,8 +9,8 @@ node server.js
 ```
 El servidor arranca por defecto en `http://localhost:3000` (puedes cambiar el puerto con la variable de entorno `PORT`).
 
-## Endpoints (v0.3)
-- `GET /api/lista` -> devuelve todo el arreglo `listSales`.
+## Endpoints (v0.4)
+- `GET /api/lista` -> devuelve todo `listSales`. Soporta query param `status=pendiente|completado`.
 - `GET /api/lista/pendientes` -> filtra items con `esCompletado === false`.
 - `GET /api/lista/completados` -> filtra items con `esCompletado === true`.
 - `POST /api/lista` -> crea un registro con `id` autogenerado.
@@ -34,3 +34,6 @@ El servidor arranca por defecto en `http://localhost:3000` (puedes cambiar el pu
 - `DELETE /api/lista/:id` -> elimina un item por `id`. Responde 200 con el item eliminado o 404 si no existe.
 
 Rutas inexistentes responden 404 `{"message": "endpoint not found"}`.
+
+### Persistencia
+- Los datos se guardan en `listSales.json` en la raiz del proyecto. Si no existe, se arranca con arreglo vacio. Cada cambio (POST/PUT/DELETE) sobrescribe el archivo.
