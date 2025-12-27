@@ -1,7 +1,10 @@
-const express = require('express');
-const morgan = require('morgan');
 const fs = require("fs");
 const path = require('path');
+
+const express = require('express');
+
+
+const morgan = require('morgan');
 const helmet = require('helmet')
 const compression = require('compression');
 const cors = require('cors');
@@ -9,9 +12,9 @@ const rateLimit = require('express-rate-limit');
 
 const logger = require('./middlewares/logger');
 const error = require('./middlewares/errorHandler');
+
+
 const router = require('./routes');
-
-
 
 const app = express();
 
@@ -37,7 +40,8 @@ if(process.env.NODE_ENV==='production')
     app.set('trust proxy',1)
 
 app.use(express.json({limit:'200kb'}));
-app.use(express.urlencoded({extended:true}))
+app.use(express.urlencoded({extended:true}));
+
 app.use(logger);
 app.use(error);
 
