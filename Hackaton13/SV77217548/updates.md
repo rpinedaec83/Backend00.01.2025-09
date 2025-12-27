@@ -10,3 +10,9 @@
 - Usuarios: listado, creación con validación y detalle por id.
 - Ordenes: rutas protegidas por header `x-token`, creación con validación y listado con paginación/filtros.
 - Exportación CSV por streaming en `GET /api/v1/orders/export`.
+
+## v0.3
+- Uploads con `multer` en `POST /api/v1/uploads/avatar` (solo imagen, 2MB máximo).
+- Descarga de archivos en `GET /api/v1/uploads/files/:filename`.
+- Idempotencia para pagos en `POST /api/v1/payments` con `Idempotency-Key`.
+- Metricas de rutas en `GET /api/metrics`.

@@ -3,10 +3,15 @@ module.exports = function requireJson(req, res, next){
     if (!methodsWithBody.includes(req.method)){
         return next()
     };
-    // Bloquea peticiones sin content-type(application/json).
+
     const contentType = req.headers['content-type'] || '';
+    // Verifica si estoy subiendo una iamgen antes de bloquear por no ser application/json.
+    if (contentType.includes('multipart/form-data')){
+        return next()
+    };
+    // Bloquea peticiones sin content-type(application/json).
     if (!contentType.includes('application/json')){
-        return res.status(415).json({ error: 'Content-Type must be application/json' })
+        return res.status(415).json({error: 'Content-Type debe ser application/json'})
     };
 
     return next();

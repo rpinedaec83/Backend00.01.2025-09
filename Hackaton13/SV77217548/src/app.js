@@ -5,7 +5,7 @@ const compression = require('compression');
 const cors = require('cors');
 const rateLimit = require('express-rate-limit');
 
-const {logger, requireJson} = require('./middlewares');
+const {logger, requireJson, metrics} = require('./middlewares');
 const errorHandler = require('./middlewares/errorHandler');
 
 const router = require('./routes');
@@ -41,6 +41,8 @@ if (process.env.NODE_ENV === 'production') {
 app.use(express.json({limit: '200kb'}));
 app.use(express.urlencoded({extended: true}));
 
+// Middleware de metricas para monitorear las rutas.
+app.use(metrics.trackMetrics);
 app.use(logger);
 app.use(requireJson);
 

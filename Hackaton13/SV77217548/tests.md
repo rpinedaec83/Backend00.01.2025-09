@@ -31,3 +31,17 @@
    - `curl.exe "http://localhost:8080/api/v1/orders?page=1&limit=5&sort=desc" -H "x-token: secret"`
 7. Exportar CSV:
    - `curl.exe http://localhost:8080/api/v1/orders/export -H "x-token: secret"`
+
+## v0.3
+1. Subir avatar con ejemplos:
+   - PNG: `curl.exe -X POST http://localhost:8080/api/v1/uploads/avatar -F "avatar=@docs\\img_examples\\example1.png"`
+   - GIF: `curl.exe -X POST http://localhost:8080/api/v1/uploads/avatar -F "avatar=@docs\\img_examples\\example2.gif"`
+2. Descargar archivo:
+   - PNG:  `curl.exe -o example1.png http://localhost:8080/api/v1/uploads/files/<storedName>`
+   - GIF:  `curl.exe -o example2.gif http://localhost:8080/api/v1/uploads/files/<storedName>`
+3. Pago idempotente (primera vez):
+   - `curl.exe -X POST http://localhost:8080/api/v1/payments -H "Content-Type: application/json" -H "Idempotency-Key: pago-001" -d '{"amount":100}'`
+4. Pago idempotente (repetir, misma respuesta):
+   - `curl.exe -X POST http://localhost:8080/api/v1/payments -H "Content-Type: application/json" -H "Idempotency-Key: pago-001" -d '{"amount":100}'`
+5. Metricas:
+   - `curl.exe http://localhost:8080/api/metrics`
