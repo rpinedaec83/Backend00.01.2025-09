@@ -7,8 +7,9 @@ const compression = require('compression');
 const cors = require('cors');
 const rateLimit = require('express-rate-limit');
 
-const logger = require('./moddlewares/logger');
-const error = require('./moddlewares/errorHandler');
+const logger = require('./middlewares/logger');
+const error = require('./middlewares/errorHandler');
+const router = require('./routes');
 
 
 
@@ -39,6 +40,8 @@ app.use(express.json({limit:'200kb'}));
 app.use(express.urlencoded({extended:true}))
 app.use(logger);
 app.use(error);
+
+app.use('/api',router)
 
 
 module.exports = app;
