@@ -1,6 +1,6 @@
 {
   "name": "hackaton13-sv77217548",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Hackaton13",
   "main": "server.js",
   "scripts": {
