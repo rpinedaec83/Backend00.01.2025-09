@@ -18,6 +18,10 @@
 - Metricas de rutas en `GET /api/metrics`.
 
 ## v0.4
-- Autenticacion por API key en `/api/v1` con header `x-api-key`.
+- Autenticación por API key en `/api/v1` con header `x-api-key`.
 - SSE en `GET /api/stream` con 5 ticks (1s).
 - Logger condicional para POST y PUT.
+
+## v0.5
+- Persistencia en `data/*.json` para usuarios, ordenes y pagos.
+- Uploads guardan metadata y descargan con nombre original.

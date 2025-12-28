@@ -1,6 +1,6 @@
-// Data en memoria.
-const orders = [];
-let nextId = 1;
+const storage = require('../services/storage');
+
+const ORDERS_FILE = 'orders.json';
 
 const parsePositiveInt = (value, fallback) => {
     const parsed = Number(value);
@@ -19,6 +19,7 @@ const escapeCsv = (value) => {
 };
 
 exports.listOrders = async (req, res) => {
+    const orders = storage.readJson(ORDERS_FILE, []);
     const page = parsePositiveInt(req.query.page, 1);
     const limit = parsePositiveInt(req.query.limit, 10);
     const status = req.query.status;
@@ -47,6 +48,8 @@ exports.listOrders = async (req, res) => {
 };
 
 exports.createOrder = async (req, res) => {
+    const orders = storage.readJson(ORDERS_FILE, []);
+    const nextId = storage.getNextId(orders);
     const {items, customerId} = req.body;
     const order = {
         id: String(nextId),
@@ -55,12 +58,13 @@ exports.createOrder = async (req, res) => {
         status: 'created',
         createdAt: Date.now()
     };
-    nextId += 1;
     orders.push(order);
+    storage.writeJson(ORDERS_FILE, orders);
     res.status(201).json(order);
 };
 
 exports.exportOrders = async (req, res) => {
+    const orders = storage.readJson(ORDERS_FILE, []);
     // CSV streaming.
     res.setHeader('Content-Type', 'text/csv');
     res.setHeader('Content-Disposition', 'attachment; filename=\"orders.csv\"');

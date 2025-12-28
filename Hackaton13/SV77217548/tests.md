@@ -51,13 +51,26 @@
    - `curl.exe http://localhost:8080/api/v1/users`
    - Respuesta esperada: 401 o 403.
 2. Listar usuarios con API key:
-   - `curl.exe http://localhost:8080/api/v1/users -H "x-api-key: hackaton13"`
+   - `curl.exe http://localhost:8080/api/v1/users -H "x-api-key: DEMO_KEY"`
 3. Crear usuario con API key:
-   - `curl.exe -X POST http://localhost:8080/api/v1/users -H "Content-Type: application/json" -H "x-api-key: hackaton13" -d '{"name":"Olenka","email":"olenka@example.com"}'`
+   - `curl.exe -X POST http://localhost:8080/api/v1/users -H "Content-Type: application/json" -H "x-api-key: DEMO_KEY" -d '{"name":"Olenka","email":"olenka@example.com"}'`
 4. Crear orden con API key y x-token:
-   - `curl.exe -X POST http://localhost:8080/api/v1/orders -H "Content-Type: application/json" -H "x-api-key: hackaton13" -H "x-token: secret" -d '{"items":[{"sku":"abc","qty":1}],"customerId":"1"}'`
+   - `curl.exe -X POST http://localhost:8080/api/v1/orders -H "Content-Type: application/json" -H "x-api-key: DEMO_KEY" -H "x-token: secret" -d '{"items":[{"sku":"abc","qty":1}],"customerId":"1"}'`
 5. Subir avatar con API key:
-   - `curl.exe -X POST http://localhost:8080/api/v1/uploads/avatar -H "x-api-key: hackaton13" -F "avatar=@docs/img_examples/example1.png"`
+   - `curl.exe -X POST http://localhost:8080/api/v1/uploads/avatar -H "x-api-key: DEMO_KEY" -F "avatar=@docs/img_examples/example1.png"`
 6. Stream SSE:
    - `curl.exe http://localhost:8080/api/stream`
    - Respuesta esperada: 5 lineas con `data: tick ...`
+
+## v0.5
+1. Subir avatar y guardar el storedName:
+   - `curl.exe -X POST http://localhost:8080/api/v1/uploads/avatar -H "x-api-key: DEMO_KEY" -F "avatar=@docs/img_examples/example2.gif"`
+2. Descarga usando storedName y guardar con nombre original:
+   - `curl.exe -OJ -H "x-api-key: DEMO_KEY" http://localhost:8080/api/v1/uploads/files/<storedName>`
+3. Persistencia de usuarios:
+   - `curl.exe -X POST http://localhost:8080/api/v1/users -H "Content-Type: application/json" -H "x-api-key: DEMO_KEY" -d '{"name":"German","email":"german@example.com"}'`
+   - Reinicia el servidor y luego:
+   - `curl.exe http://localhost:8080/api/v1/users -H "x-api-key: DEMO_KEY"`
+4. Persistencia de pagos idempotentes:
+   - `curl.exe -X POST http://localhost:8080/api/v1/payments -H "Content-Type: application/json" -H "Idempotency-Key: pago-005" -H "x-api-key: DEMO_KEY" -d '{"amount":50}'`
+   - Reinicia el servidor y repite el mismo request: debe responder igual.
