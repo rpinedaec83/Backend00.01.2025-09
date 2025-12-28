@@ -16,3 +16,8 @@
 - Descarga de archivos en `GET /api/v1/uploads/files/:filename`.
 - Idempotencia para pagos en `POST /api/v1/payments` con `Idempotency-Key`.
 - Metricas de rutas en `GET /api/metrics`.
+
+## v0.4
+- Autenticacion por API key en `/api/v1` con header `x-api-key`.
+- SSE en `GET /api/stream` con 5 ticks (1s).
+- Logger condicional para POST y PUT.

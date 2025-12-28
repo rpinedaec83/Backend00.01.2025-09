@@ -45,3 +45,19 @@
    - `curl.exe -X POST http://localhost:8080/api/v1/payments -H "Content-Type: application/json" -H "Idempotency-Key: pago-001" -d '{"amount":100}'`
 5. Metricas:
    - `curl.exe http://localhost:8080/api/metrics`
+
+## v0.4
+1. API key requerida (va a fallar):
+   - `curl.exe http://localhost:8080/api/v1/users`
+   - Respuesta esperada: 401 o 403.
+2. Listar usuarios con API key:
+   - `curl.exe http://localhost:8080/api/v1/users -H "x-api-key: hackaton13"`
+3. Crear usuario con API key:
+   - `curl.exe -X POST http://localhost:8080/api/v1/users -H "Content-Type: application/json" -H "x-api-key: hackaton13" -d '{"name":"Olenka","email":"olenka@example.com"}'`
+4. Crear orden con API key y x-token:
+   - `curl.exe -X POST http://localhost:8080/api/v1/orders -H "Content-Type: application/json" -H "x-api-key: hackaton13" -H "x-token: secret" -d '{"items":[{"sku":"abc","qty":1}],"customerId":"1"}'`
+5. Subir avatar con API key:
+   - `curl.exe -X POST http://localhost:8080/api/v1/uploads/avatar -H "x-api-key: hackaton13" -F "avatar=@docs/img_examples/example1.png"`
+6. Stream SSE:
+   - `curl.exe http://localhost:8080/api/stream`
+   - Respuesta esperada: 5 lineas con `data: tick ...`
