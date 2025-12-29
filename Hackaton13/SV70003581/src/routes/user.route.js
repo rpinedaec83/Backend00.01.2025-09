@@ -7,6 +7,7 @@ import {
 import { validateField } from "../middlewares/validate-field.middleware.js";
 import { check } from "express-validator";
 import { multerMiddleware } from "../middlewares/multer.middleware.js";
+import { validateApiToken } from "../middlewares/validate-api-token.middleware.js";
 
 const route = Router();
 
@@ -24,6 +25,7 @@ route.post(
       min: 6,
     }),
     validateField,
+    validateApiToken
   ],
   createUser
 );

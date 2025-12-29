@@ -8,6 +8,8 @@
 
     En la carpeta /docs
 
+    Solo para POST, api-token = 123123
+
 ## Paquetes usados
 ### bcryptjs
 Se usa para hashear contraseñas antes de guardarlas en la base de datos, evitando almacenar contraseñas en texto plano.
@@ -24,3 +26,4 @@ ODM (no ORM estrictamente) para modelar datos y trabajar con MongoDB usando esqu
 ### multer
 Middleware para manejar subida de archivos (imágenes, PDFs, etc.), permitiendo definir límites de tamaño y cantidad.
 
+helmet, compression, morgan, express-rate-limit
