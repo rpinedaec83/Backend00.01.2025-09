@@ -1,13 +1,18 @@
 import express from "express";
 
 import cors from "cors";
+import morgan from "morgan";
+import helmet from "helmet";
+import compression from "compression";
 
 import { mongoose } from "../config/db.js";
 import { metricsMiddleware } from "../middlewares/metric.middleware.js";
+import { logger } from "../middlewares/metric.middleware.js"
+import { limiter } from "../middlewares/rateLimit.middleware.js";
+
 import { UserRoute } from "../routes/user.route.js";
 import { OrderRoute } from "../routes/order.route.js"
-import {MetricRoute} from "../routes/metric.route.js"
-
+import { MetricRoute } from "../routes/metric.route.js"
 
 class Server {
 
@@ -25,10 +30,15 @@ class Server {
     this.dbConnection();
   }
 
-  middleware() {
-    this.app.use(cors());
+  middleware() {    
+    this.app.use(compression());
+    this.app.use(cors());    
+    this.app.use(limiter);
     this.app.use(express.json());
+    this.app.use(morgan('dev'));
+    this.app.use(helmet());
     this.app.use(metricsMiddleware);
+    this.app.use(logger);
   }
 
   routes() {
