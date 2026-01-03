@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Hackaton 14 - Chat Persistente</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Space+Grotesk:wght@400;600&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+    <div class="app">
+        <header class="header">
+        <div>
+            <p class="eyebrow">Hackaton 14</p>
+            <h1>Chat persistente + ChatGPT</h1>
+            <p class="subtitle">SV77217548</p>
+        </div>
+        <div class="header-actions">
+            <label class="field">
+            <span>Tu nombre</span>
+            <input id="author-input" type="text" placeholder="Usuario" maxlength="20" />
+            </label>
+            <button id="clear-button" type="button" class="secondary">Borrar historial</button>
+        </div>
+        </header>
+
+        <main class="chat">
+        <div id="messages" class="messages"></div>
+        </main>
+
+        <form id="message-form" class="composer">
+        <input
+            id="message-input"
+            type="text"
+            placeholder="Escribe tu mensaje..."
+            autocomplete="off"
+            required
+        />
+        <button type="submit">Enviar</button>
+        </form>
+    </div>
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>
