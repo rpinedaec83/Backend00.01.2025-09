@@ -31,6 +31,31 @@ wsServer.on("request",(request)=>{
     const connection = request.accept(null, request.origin);
     connection.on("message",(message)=>{
         console.log(message.utf8Data);
+        let objMensaje = JSON.parse(message.utf8Data);
+        switch (objMensaje.message) {
+            case 'clima':
+                console.log(objMensaje)
+                let config = {
+                    method: 'get',
+                    maxBodyLength: Infinity,
+                    url: `https://the-weather-api.p.rapidapi.com/api/weather/${objMensaje.query}`,
+                    headers: {
+                        'X-RapidAPI-Key': '73d70d2c28msh7f79106bce6c25ep19a96ajsn943644966186',
+                        'X-RapidAPI-Host': 'the-weather-api.p.rapidapi.com'
+                    }
+                };
+                axios.request(config).then(response=>{
+                    console.log(response.data);
+                    objMensaje.answer = response.data.data;
+                    connection.sendUTF(JSON.stringify(objMensaje))
+                })
+                break;
+        
+            default:
+                console.log(objMensaje)
+                connection.sendUTF(JSON.stringify(objMensaje))
+                break;
+        }
     })
 })
 
