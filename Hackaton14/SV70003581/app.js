@@ -12,7 +12,7 @@ import dotenv from "dotenv";
 dotenv.config();
 
 async function dbconnection() {
-  await mongoose.connect("mongodb+srv://carlos1710ml_db_user:123@cluster0.s37xcuo.mongodb.net");
+  await mongoose.connect(URL_MONGO);
   console.log("mongodb connected.")
 }
 dbconnection();
@@ -66,19 +66,18 @@ io.on("connection", (socket) => {
     console.log("message: ", data);
 
     //TODO OK: gurdar en la db los mensajes 
-
     saveMessage(data.message, data.username);
 
 
     if (data.message.includes("@AgenteIdat")) {
 
-      // 1️⃣ Aviso inmediato al cliente
+      // Aviso inmediato al cliente
       socket.emit("response", {
         username: "AgenteIdat🤖",
         message: "Estoy trabajando en tu respuesta..."
       });
 
-      // 2️⃣ Llamada a OpenAI
+      // Llamada a OpenAI
       (async () => {
         try {
           const completion = await openai.chat.completions.create({
@@ -101,10 +100,10 @@ Máximo 5 interacciones por estudiante.`
 
           const aiMessage = completion.choices[0].message.content;
 
-          // 3️⃣ Guardar respuesta del bot
+          // Guardar respuesta del bot
           await saveMessage(aiMessage, "AgenteIdat🤖");
 
-          // 4️⃣ Enviar respuesta al cliente
+          // Enviar respuesta al cliente
           io.emit("response", {
             username: "AgenteIdat🤖",
             message: aiMessage
