@@ -7,8 +7,10 @@ const express = require('express');
 const http = require('http');
 const {Server} = require('socket.io');
 const OpenAI = require('openai');
+const bcrypt = require('bcryptjs');
+const jwt = require('jsonwebtoken');
 const {ObjectId} = require('mongodb');
-const {getMessagesCollection} = require('./db');
+const {getMessagesCollection, getUsersCollection} = require('./db');
 
 const app = express();
 const server = http.createServer(app);
@@ -19,10 +21,126 @@ const OPENAI_MODEL = process.env.openAIModel || 'gpt-5';
 const SYSTEM_PROMPT = process.env.SYSTEM_PROMPT || 'Eres un asistente para estudiantes de backend. Responde en español de forma clara y breve.';
 const HISTORY_LIMIT = Number.parseInt(process.env.HISTORY_LIMIT || '50', 10);
 const CONTEXT_LIMIT = Number.parseInt(process.env.CONTEXT_LIMIT || '20', 10);
+const JWT_SECRET = process.env.JWT_SECRET;
+const JWT_EXPIRES_IN = process.env.JWT_EXPIRES_IN || '2h';
+const SALT_ROUNDS = Number.parseInt(process.env.BCRYPT_SALT_ROUNDS || '10', 10);
+const USERNAME_MIN = 3;
+const USERNAME_MAX = 20;
+const PASSWORD_MIN = 6;
 
 const openai = process.env.openAIKey ? new OpenAI({apiKey: process.env.openAIKey}) : null;
 
+function normalizeUsername(value){
+    return String(value || '').trim();
+}
+
+function normalizePassword(value){
+    return String(value || '').trim();
+}
+
+function validateCredentials(username, password){
+    const safeUsername = normalizeUsername(username);
+    const safePassword = normalizePassword(password);
+
+    if (!safeUsername || !safePassword){
+        return {ok: false, message: 'Usuario y contraseña son requeridos'};
+    }
+    if (safeUsername.length < USERNAME_MIN || safeUsername.length > USERNAME_MAX){
+        return {ok: false, message: `El usuario debe tener entre ${USERNAME_MIN} y ${USERNAME_MAX} caracteres`};
+    }
+    if (safePassword.length < PASSWORD_MIN){
+        return {ok: false, message: `La contraseña debe tener al menos ${PASSWORD_MIN} caracteres`};
+    }
+    return{
+        ok: true,
+        username: safeUsername,
+        password: safePassword,
+        usernameKey: safeUsername.toLowerCase()
+    };
+}
+
+function buildUserResponse(user){
+    return {id: user._id.toString(), username: user.username};
+}
+
+function createToken(user){
+    if (!JWT_SECRET){
+        throw new Error('JWT_SECRET no configurado');
+    }
+    return jwt.sign(
+        {sub: user._id.toString(), username: user.username},
+        JWT_SECRET,
+        {expiresIn: JWT_EXPIRES_IN}
+    );
+}
+
+function getUserObjectId(userId){
+    try{
+        return new ObjectId(userId);
+    } catch (error){
+        return null;
+    }
+}
+
 app.use(express.json());
+
+app.post('/api/auth/register', async (req, res) => {
+    try{
+        const validation = validateCredentials(req.body?.username, req.body?.password);
+        if (!validation.ok){
+            return res.status(400).json({error: validation.message});
+        }
+
+        const users = await getUsersCollection();
+        const existing = await users.findOne({usernameKey: validation.usernameKey});
+        if (existing){
+            return res.status(409).json({error: 'El usuario ya existe'});
+        }
+
+        const passwordHash = await bcrypt.hash(validation.password, SALT_ROUNDS);
+        const newUser = {
+            username: validation.username,
+            usernameKey: validation.usernameKey,
+            passwordHash,
+            createdAt: new Date()
+        };
+        const result = await users.insertOne(newUser);
+        const savedUser = {...newUser, _id: result.insertedId};
+
+        const token = createToken(savedUser);
+        return res.status(201).json({token, user: buildUserResponse(savedUser)});
+    } catch (error){
+        console.error('Error registrando usuario', error);
+        return res.status(500).json({error: 'No se pudo registrar el usuario'});
+    }
+});
+
+app.post('/api/auth/login', async (req, res) => {
+    try {
+        const validation = validateCredentials(req.body?.username, req.body?.password);
+        if (!validation.ok){
+            return res.status(400).json({error: validation.message});
+        }
+
+        const users = await getUsersCollection();
+        const user = await users.findOne({usernameKey: validation.usernameKey});
+        if (!user){
+            return res.status(401).json({error: 'Credenciales invalidas'});
+        }
+
+        const isValid = await bcrypt.compare(validation.password, user.passwordHash || '');
+        if (!isValid){
+            return res.status(401).json({error: 'Credenciales invalidas'});
+        }
+
+        const token = createToken(user);
+        return res.json({token, user: buildUserResponse(user)});
+    } catch (error){
+        console.error('Error en login', error);
+        return res.status(500).json({error: 'No se pudo iniciar sesion'});
+    }
+});
+
 app.get('/health', (req, res) => {
     res.json({ok: true, timestamp: new Date().toISOString()});
 });
@@ -41,29 +159,56 @@ function mapMessage(doc){
     };
 }
 
-async function loadHistory(limit){
+async function loadHistory(userId, limit){
     const collection = await getMessagesCollection();
-    const docs = await collection.find({})
+    const docs = await collection.find({userId})
         .sort({createdAt: -1})
         .limit(limit)
         .toArray();
     return docs.reverse().map(mapMessage);
 }
 
-async function buildContext(limit){
+async function buildContext(userId, limit){
     const collection = await getMessagesCollection();
-    const docs = await collection.find({})
+    const docs = await collection.find({userId})
         .sort({createdAt: -1})
         .limit(limit)
         .toArray();
-    return docsmap((doc) => ({role: doc.role, content: doc.content}));
+    return docs.reverse().map((doc) => ({role: doc.role, content: doc.content}));
 }
+
+io.use((socket, next) => {
+    if (!JWT_SECRET){
+        return next(new Error('AUTH_CONFIG'));
+    }
+
+    const token = socket.handshake.auth?.token;
+    if (!token){
+        return next(new Error('AUTH_REQUIRED'));
+    }
+
+    try{
+        const payload = jwt.verify(token, JWT_SECRET);
+        socket.user = {id: payload.sub, username: payload.username};
+        return next();
+    } catch (error){
+        return next(new Error('AUTH_INVALID'));
+    }
+});
 
 io.on('connection', async (socket) => {
     console.log(`Nuevo usuario conectado: ${socket.id}`);
+    const userId = socket.user?.id;
+    const userObjectId = getUserObjectId(userId);
+    if (!userObjectId){
+        socket.disconnect(true);
+        return;
+    }
+    const userRoom = `user:${userId}`;
+    socket.join(userRoom);
 
     try{
-        const history = await loadHistory(HISTORY_LIMIT);
+        const history = await loadHistory(userObjectId, HISTORY_LIMIT);
         socket.emit('history', history);
     } catch (error){
         console.error('No se pudo cargar el historial', error);
@@ -72,10 +217,17 @@ io.on('connection', async (socket) => {
     socket.on('sendMessage', async (payload, callback) => {
         try{
             const content = typeof payload === 'string' ? payload : payload?.content;
-            const author = payload?.author || 'Usuario';
+            const user = socket.user;
+            const author = user?.username || 'Usuario';
             if (!content || !content.trim()){
                 if (callback){
                     callback({error: 'Mensaje vacio'});
+                }
+                return;
+            }
+            if (!userObjectId){
+                if (callback){
+                    callback({error: 'Usuario no autenticado'});
                 }
                 return;
             }
@@ -85,6 +237,7 @@ io.on('connection', async (socket) => {
                 role: 'user',
                 content: content.trim(),
                 author,
+                userId: userObjectId,
                 createdAt: now,
                 updatedAt: now,
                 edited: false
@@ -94,7 +247,7 @@ io.on('connection', async (socket) => {
             const result = await collection.insertOne(userMessage);
             const savedUserMessage = {...userMessage, _id: result.insertedId};
 
-            io.emit('messageCreated', mapMessage(savedUserMessage));
+            io.to(userRoom).emit('messageCreated', mapMessage(savedUserMessage));
 
             if (!openai){
                 if (callback){
@@ -103,7 +256,7 @@ io.on('connection', async (socket) => {
                 return;
             }
 
-            const contextMessages = await buildContext(CONTEXT_LIMIT);
+            const contextMessages = await buildContext(userObjectId, CONTEXT_LIMIT);
             const response = await openai.chat.completions.create({
                 model: OPENAI_MODEL,
                 messages: [
@@ -118,12 +271,13 @@ io.on('connection', async (socket) => {
                     role: 'assistant',
                     content: assistantText,
                     author: 'ChatGPT',
+                    userId: userObjectId,
                     createdAt: new Date(),
                     updatedAt: new Date(),
                     edited: false
                 };
                 const assistantResult = await collection.insertOne(assistantMessage);
-                io.emit('messageCreated', mapMessage({...assistantMessage, _id: assistantResult.insertedId}));
+                io.to(userRoom).emit('messageCreated', mapMessage({...assistantMessage, _id: assistantResult.insertedId}));
             }
 
             if (callback){
@@ -166,6 +320,21 @@ io.on('connection', async (socket) => {
                 return;
             }
 
+            const ownerId = existing.userId?.toString();
+            const currentUserId = socket.user?.id;
+            if (!ownerId){
+                if (callback){
+                    callback({error: 'Mensaje sin propietario'});
+                }
+                return;
+            }
+            if (!currentUserId || ownerId !== currentUserId){
+                if (callback){
+                    callback({error: 'No es el usuario correspondiente al mensaje'});
+                }
+                return;
+            }
+
             const now = new Date();
             await collection.updateOne(
                 {_id: objectId},
@@ -176,7 +345,7 @@ io.on('connection', async (socket) => {
                 }}
             );
 
-            io.emit('messageUpdated', {
+            io.to(userRoom).emit('messageUpdated', {
                 id: messageId,
                 content: content.trim(),
                 edited: true,
@@ -188,7 +357,7 @@ io.on('connection', async (socket) => {
             }
         } catch (error){
             console.error('Error editando mensaje', error);
-            if (callback) {
+            if (callback){
                 callback({error: 'No se pudo editar el mensaje'});
             }
         }
@@ -197,8 +366,8 @@ io.on('connection', async (socket) => {
     socket.on('clearHistory', async (callback) => {
         try{
             const collection = await getMessagesCollection();
-            await collection.deleteMany({});
-            io.emit('historyCleared');
+            await collection.deleteMany({userId: userObjectId});
+            io.to(userRoom).emit('historyCleared');
             if (callback){
                 callback();
             }

@@ -1,7 +1,8 @@
 const {MongoClient} = require('mongodb');
 
 const DEFAULT_DB_NAME = 'sv77217548_h14';
-const DEFAULT_COLLECTION = 'messages';
+const DEFAULT_MESSAGES_COLLECTION = 'messages';
+const DEFAULT_USERS_COLLECTION = 'users';
 
 let client;
 let db;
@@ -25,7 +26,13 @@ async function getDB(){
 
 async function getMessagesCollection(){
     const database = await getDB();
-    const collectionName = process.env.MESSAGES_COLLECTION || DEFAULT_COLLECTION;
+    const collectionName = process.env.MESSAGES_COLLECTION || DEFAULT_MESSAGES_COLLECTION;
+    return database.collection(collectionName);
+}
+
+async function getUsersCollection(){
+    const database = await getDB();
+    const collectionName = process.env.USERS_COLLECTION || DEFAULT_USERS_COLLECTION;
     return database.collection(collectionName);
 }
 
@@ -37,4 +44,4 @@ async function closeDB(){
     db = undefined;
 }
 
-module.exports = {getDB, getMessagesCollection, closeDB};
+module.exports = {getDB, getMessagesCollection, getUsersCollection, closeDB};

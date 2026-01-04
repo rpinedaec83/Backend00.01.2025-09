@@ -40,11 +40,7 @@ wsServer.on("request",(request)=>{
                     maxBodyLength: Infinity,
                     url: `https://the-weather-api.p.rapidapi.com/api/weather/${objMensaje.query}`,
                     headers: {
-<<<<<<< HEAD
-                        'X-RapidAPI-Key': 'API-KEY',    // Aquí va tu API-KEY.
-=======
                         'X-RapidAPI-Key': 'API-KEY', // Aquí se cambia tu API-KEY
->>>>>>> cec5712 (Hackaton 14)
                         'X-RapidAPI-Host': 'the-weather-api.p.rapidapi.com'
                     }
                 };

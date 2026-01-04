@@ -1,5 +1,11 @@
 # Updates
 
+## v0.2
+- Registro e inicio de sesion con JWT.
+- Socket.io protegido por token y mensajes ligados al usuario autenticado.
+- Historial y mensajes filtrados por usuario.
+- UI con pantalla de acceso y boton para cerrar sesion.
+
 ## v0.1
 - Servidor base con Express, HTTP y Socket.io.
 - Persistencia en MongoDB (db `sv77217548_h14`) con coleccion `messages`.
