@@ -1,20 +1,55 @@
-const socket = io();
+const authScreen = document.getElementById('auth-screen');
+const chatApp = document.getElementById('chat-app');
+const authForm = document.getElementById('auth-form');
+const authUsername = document.getElementById('auth-username');
+const authPassword = document.getElementById('auth-password');
+const authError = document.getElementById('auth-error');
+const authSubmit = document.getElementById('auth-submit');
+const authTabs = document.querySelectorAll('.auth-tabs .tab');
+const currentUser = document.getElementById('current-user');
+const logoutButton = document.getElementById('logout-button');
 
 const messageForm = document.getElementById('message-form');
 const messageInput = document.getElementById('message-input');
 const messages = document.getElementById('messages');
 const clearButton = document.getElementById('clear-button');
-const authorInput = document.getElementById('author-input');
 
-const storedAuthor = localStorage.getItem('chat_author');
-authorInput.value = storedAuthor || 'Usuario';
+let socket = null;
+let authMode = 'login';
 
-authorInput.addEventListener('input', (event) => {
-    const value = event.target.value.trim();
-    if (value){
-        localStorage.setItem('chat_author', value);
-    }
-});
+function setAuthMode(mode){
+    authMode = mode;
+    authTabs.forEach((tab) => {
+        tab.classList.toggle('active', tab.dataset.mode === mode);
+    });
+    authSubmit.textContent = mode === 'login' ? 'Ingresar' : 'Crear cuenta';
+    showAuthError('');
+}
+
+function showAuthError(message){
+    authError.textContent = message || '';
+}
+
+function showChat(user){
+    authScreen.classList.add('hidden');
+    chatApp.classList.remove('hidden');
+    currentUser.textContent = user?.username || '-';
+}
+
+function showAuth(){
+    authScreen.classList.remove('hidden');
+    chatApp.classList.add('hidden');
+}
+
+function saveAuth(token, user){
+    localStorage.setItem('chat_token', token);
+    localStorage.setItem('chat_user', JSON.stringify(user));
+}
+
+function clearAuth(){
+    localStorage.removeItem('chat_token');
+    localStorage.removeItem('chat_user');
+}
 
 function formatTime(isoString){
     if (!isoString){
@@ -96,25 +131,94 @@ function updateMessage(message){
     }
 }
 
-function clearMessages() {
+function clearMessages(){
     messages.innerHTML = '';
 }
 
-socket.on('history', (history) => {
+function disconnectSocket(){
+    if (socket){
+        socket.removeAllListeners();
+        socket.disconnect();
+        socket = null;
+    }
+}
+
+function handleSocketAuthError(error){
+    let message = 'No se pudo conectar al chat';
+    if (error?.message === 'AUTH_REQUIRED'){
+        message = 'Debes iniciar sesion para continuar';
+    } else if (error?.message === 'AUTH_INVALID'){
+        message = 'Sesion invalida o expirada';
+    } else if (error?.message === 'AUTH_CONFIG'){
+        message = 'Configura JWT_SECRET en el servidor';
+    }
+    logout(message);
+}
+
+function connectSocket(token){
+    disconnectSocket();
+    socket = io({auth: {token}});
+
+    socket.on('connect_error', handleSocketAuthError);
+    socket.on('history', (history) => {
+        clearMessages();
+        history.forEach(appendMessage);
+    });
+    socket.on('messageCreated', appendMessage);
+    socket.on('messageUpdated', updateMessage);
+    socket.on('historyCleared', clearMessages);
+}
+
+async function requestAuth(mode, username, password){
+    const endpoint = mode === 'register' ? 'register' : 'login';
+    const response = await fetch(`/api/auth/${endpoint}`, {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({username, password})
+    });
+    const data = await response.json().catch(() => ({}));
+    if (!response.ok){
+        throw new Error(data.error || 'No se pudo autenticar');
+    }
+    return data;
+}
+
+function logout(message){
+    disconnectSocket();
+    clearAuth();
     clearMessages();
-    history.forEach(appendMessage);
+    currentUser.textContent = '-';
+    showAuth();
+    showAuthError(message || '');
+}
+
+authTabs.forEach((tab) => {
+    tab.addEventListener('click', () => {
+        setAuthMode(tab.dataset.mode);
+    });
 });
 
-socket.on('messageCreated', (message) => {
-    appendMessage(message);
+authForm.addEventListener('submit', async (event) => {
+    event.preventDefault();
+    const username = authUsername.value.trim();
+    const password = authPassword.value.trim();
+    if (!username || !password){
+        showAuthError('Usuario y contrasena son requeridos');
+        return;
+    }
+    try{
+        const data = await requestAuth(authMode, username, password);
+        saveAuth(data.token, data.user);
+        authPassword.value = '';
+        showChat(data.user);
+        connectSocket(data.token);
+    } catch (error){
+        showAuthError(error.message);
+    }
 });
 
-socket.on('messageUpdated', (message) => {
-    updateMessage(message);
-});
-
-socket.on('historyCleared', () => {
-    clearMessages();
+logoutButton.addEventListener('click', () => {
+    logout('Sesion cerrada');
 });
 
 messageForm.addEventListener('submit', (event) => {
@@ -123,13 +227,12 @@ messageForm.addEventListener('submit', (event) => {
     if (!content){
         return;
     }
+    if (!socket || !socket.connected){
+        alert('Debes iniciar sesion para enviar mensajes');
+        return;
+    }
 
-    const payload = {
-        content,
-        author: authorInput.value.trim() || 'Usuario'
-    };
-
-    socket.emit('sendMessage', payload, (error) => {
+    socket.emit('sendMessage', {content}, (error) => {
         if (error?.error){
             alert(error.error);
             return;
@@ -140,6 +243,10 @@ messageForm.addEventListener('submit', (event) => {
 });
 
 clearButton.addEventListener('click', () => {
+    if (!socket || !socket.connected){
+        alert('Debes iniciar sesion para borrar el historial');
+        return;
+    }
     const confirmed = window.confirm('Seguro que deseas borrar todo el historial?');
     if (!confirmed){
         return;
@@ -157,6 +264,10 @@ messages.addEventListener('click', (event) => {
         return;
     }
     if (!target.matches('[data-action="edit"]')){
+        return;
+    }
+    if (!socket || !socket.connected){
+        alert('Debes iniciar sesion para editar mensajes');
         return;
     }
 
@@ -179,3 +290,19 @@ messages.addEventListener('click', (event) => {
         }
     });
 });
+
+const storedToken = localStorage.getItem('chat_token');
+const storedUser = localStorage.getItem('chat_user');
+if (storedToken && storedUser){
+    try{
+        const user = JSON.parse(storedUser);
+        showChat(user);
+        connectSocket(storedToken);
+    } catch (error){
+        logout('');
+    }
+} else{
+    showAuth();
+}
+
+setAuthMode(authMode);

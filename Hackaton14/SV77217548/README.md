@@ -2,7 +2,7 @@
 
 ## Requisitos
 - Node.js 18+
-- MongoDB Atlas
+- MongoDB local o Atlas
 - API Key de OpenAI
 
 ## Configuracion
@@ -11,6 +11,10 @@
    - `MONGOURI`
    - `DB_NAME` (usa `sv77217548_h14`)
    - `MESSAGES_COLLECTION` (opcional)
+   - `USERS_COLLECTION` (opcional)
+   - `JWT_SECRET`
+   - `JWT_EXPIRES_IN`
+   - `BCRYPT_SALT_ROUNDS` (opcional)
    - `openAIKey`
    - `openAIModel`
    - `HISTORY_LIMIT` y `CONTEXT_LIMIT`
@@ -21,8 +25,13 @@
 - `npm run dev`
 - `npm start`
 
+## Auth API
+- `POST /api/auth/register` `{ "username": "...", "password": "..." }`
+- `POST /api/auth/login` `{ "username": "...", "password": "..." }`
+
 ## Uso
 - Abre `http://localhost:8080`.
+- Registra o inicia sesion con usuario y contrasena.
 - Envia mensajes para verlos en tiempo real.
 - Usa **Editar** para cambiar un mensaje enviado.
 - Usa **Borrar historial** para limpiar la conversacion.
@@ -30,4 +39,5 @@
 
 ## Notas
 - Los mensajes se guardan en la coleccion `messages` dentro de `sv77217548_h14`.
+- Los usuarios se guardan con contraseña encriptada (bcrypt) y autenticacion JWT.
 - Si `openAIKey` no esta configurada, el chat funciona sin respuesta del bot.
