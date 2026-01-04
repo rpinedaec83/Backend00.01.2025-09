@@ -12,7 +12,7 @@ import dotenv from "dotenv";
 dotenv.config();
 
 async function dbconnection() {
-  await mongoose.connect(URL_MONGO);
+  await mongoose.connect(process.env.URL_MONGO);
   console.log("mongodb connected.")
 }
 dbconnection();
