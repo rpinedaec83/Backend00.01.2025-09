@@ -1,5 +1,19 @@
 # Tests
 
+## v1.0
+1. Login con token corto (opcional):
+   - Configura `JWT_EXPIRES_IN=10s`, reinicia el server.
+   - Inicia sesion y espera 10s.
+   - Debe cerrar sesion automaticamente con mensaje de expiracion.
+2. Editar y regenerar respuesta:
+   - Envia un mensaje y espera respuesta del asistente.
+   - Edita el mensaje y verifica que la respuesta del asistente se actualiza.
+3. Eliminar mensaje individual:
+   - Presiona **Eliminar** en un mensaje de usuario.
+   - Debe desaparecer ese mensaje y la respuesta asociada.
+4. Indicador escribiendo:
+   - Envia un mensaje y observa **Asistente escribiendo...** hasta que llegue la respuesta.
+
 ## v0.2
 1. Instalar dependencias:
    - `npm install`

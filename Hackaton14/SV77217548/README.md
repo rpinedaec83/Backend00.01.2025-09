@@ -34,10 +34,14 @@
 - Registra o inicia sesion con usuario y contrasena.
 - Envia mensajes para verlos en tiempo real.
 - Usa **Editar** para cambiar un mensaje enviado.
+- Usa **Eliminar** para borrar un mensaje puntual.
+- La respuesta del asistente se regenera cuando editas un mensaje.
 - Usa **Borrar historial** para limpiar la conversacion.
 - Health check: `GET /health`.
 
 ## Notas
 - Los mensajes se guardan en la coleccion `messages` dentro de `sv77217548_h14`.
+- El historial y los mensajes en tiempo real se filtran por usuario.
 - Los usuarios se guardan con contraseña encriptada (bcrypt) y autenticacion JWT.
+- La sesion se cierra automaticamente cuando el token expira.
 - Si `openAIKey` no esta configurada, el chat funciona sin respuesta del bot.

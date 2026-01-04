@@ -198,6 +198,23 @@ h1 {
     overflow: hidden;
 }
 
+.chat-tools {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+    gap: 12px;
+}
+
+.typing-indicator {
+    font-size: 0.8rem;
+    color: var(--muted);
+    font-family: 'DM Mono', monospace;
+    background: rgba(27, 27, 31, 0.06);
+    padding: 6px 12px;
+    border-radius: 999px;
+}
+
 .messages {
     display: flex;
     flex-direction: column;

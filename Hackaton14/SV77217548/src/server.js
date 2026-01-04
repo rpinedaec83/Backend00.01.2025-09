@@ -168,13 +168,21 @@ async function loadHistory(userId, limit){
     return docs.reverse().map(mapMessage);
 }
 
-async function buildContext(userId, limit){
+async function buildContext(userId, limit, options){
     const collection = await getMessagesCollection();
-    const docs = await collection.find({userId})
+    const query = {userId};
+    if (options?.beforeDate){
+        query.createdAt = {$lte: options.beforeDate};
+    }
+    const docs = await collection.find(query)
         .sort({createdAt: -1})
         .limit(limit)
         .toArray();
-    return docs.reverse().map((doc) => ({role: doc.role, content: doc.content}));
+    const ordered = docs.reverse();
+    const filtered = options?.excludeReplyTo
+        ? ordered.filter((doc) => doc.role !== 'assistant' || doc.replyTo?.toString() !== options.excludeReplyTo.toString())
+        : ordered;
+    return filtered.map((doc) => ({role: doc.role, content: doc.content}));
 }
 
 io.use((socket, next) => {
@@ -249,39 +257,44 @@ io.on('connection', async (socket) => {
 
             io.to(userRoom).emit('messageCreated', mapMessage(savedUserMessage));
 
+            if (callback){
+                callback();
+            }
+
             if (!openai){
-                if (callback){
-                    callback();
-                }
                 return;
             }
 
-            const contextMessages = await buildContext(userObjectId, CONTEXT_LIMIT);
-            const response = await openai.chat.completions.create({
-                model: OPENAI_MODEL,
-                messages: [
-                    {role: 'system', content: SYSTEM_PROMPT},
-                    ...contextMessages
-                ]
-            });
+            io.to(userRoom).emit('assistantTyping', {isTyping: true});
+            try{
+                const contextMessages = await buildContext(userObjectId, CONTEXT_LIMIT);
+                const response = await openai.chat.completions.create({
+                    model: OPENAI_MODEL,
+                    messages: [
+                        {role: 'system', content: SYSTEM_PROMPT},
+                        ...contextMessages
+                    ]
+                });
 
-            const assistantText = response.choices?.[0]?.message?.content?.trim();
-            if (assistantText){
-                const assistantMessage = {
-                    role: 'assistant',
-                    content: assistantText,
-                    author: 'ChatGPT',
-                    userId: userObjectId,
-                    createdAt: new Date(),
-                    updatedAt: new Date(),
-                    edited: false
-                };
-                const assistantResult = await collection.insertOne(assistantMessage);
-                io.to(userRoom).emit('messageCreated', mapMessage({...assistantMessage, _id: assistantResult.insertedId}));
-            }
-
-            if (callback){
-                callback();
+                const assistantText = response.choices?.[0]?.message?.content?.trim();
+                if (assistantText){
+                    const assistantMessage = {
+                        role: 'assistant',
+                        content: assistantText,
+                        author: 'ChatGPT',
+                        userId: userObjectId,
+                        replyTo: savedUserMessage._id,
+                        createdAt: new Date(),
+                        updatedAt: new Date(),
+                        edited: false
+                    };
+                    const assistantResult = await collection.insertOne(assistantMessage);
+                    io.to(userRoom).emit('messageCreated', mapMessage({...assistantMessage, _id: assistantResult.insertedId}));
+                }
+            } catch (error){
+                console.error('Error generando respuesta', error);
+            } finally{
+                io.to(userRoom).emit('assistantTyping', {isTyping: false});
             }
         } catch (error){
             console.error('Error enviando mensaje', error);
@@ -322,6 +335,7 @@ io.on('connection', async (socket) => {
 
             const ownerId = existing.userId?.toString();
             const currentUserId = socket.user?.id;
+            const baseDate = existing.createdAt instanceof Date ? existing.createdAt : null;
             if (!ownerId){
                 if (callback){
                     callback({error: 'Mensaje sin propietario'});
@@ -355,10 +369,149 @@ io.on('connection', async (socket) => {
             if (callback){
                 callback();
             }
+
+            if (!openai){
+                return;
+            }
+
+            io.to(userRoom).emit('assistantTyping', {isTyping: true});
+            try{
+                const contextMessages = await buildContext(
+                    userObjectId,
+                    CONTEXT_LIMIT,
+                    {excludeReplyTo: objectId, beforeDate: baseDate || undefined}
+                );
+                const response = await openai.chat.completions.create({
+                    model: OPENAI_MODEL,
+                    messages: [
+                        {role: 'system', content: SYSTEM_PROMPT},
+                        ...contextMessages
+                    ]
+                });
+
+                const assistantText = response.choices?.[0]?.message?.content?.trim();
+                if (assistantText){
+                    const assistantMessage = await collection.findOne({
+                        userId: userObjectId,
+                        role: 'assistant',
+                        replyTo: objectId
+                    });
+
+                    if (assistantMessage){
+                        const updatedAt = new Date();
+                        await collection.updateOne(
+                            {_id: assistantMessage._id},
+                            {$set: {content: assistantText, updatedAt, edited: true}}
+                        );
+                        io.to(userRoom).emit('messageUpdated', {
+                            id: assistantMessage._id.toString(),
+                            content: assistantText,
+                            edited: true,
+                            updatedAt: updatedAt.toISOString()
+                        });
+                    } else{
+                        const newAssistantMessage = {
+                            role: 'assistant',
+                            content: assistantText,
+                            author: 'ChatGPT',
+                            userId: userObjectId,
+                            replyTo: objectId,
+                            createdAt: new Date(),
+                            updatedAt: new Date(),
+                            edited: false
+                        };
+                        const assistantResult = await collection.insertOne(newAssistantMessage);
+                        io.to(userRoom).emit('messageCreated', mapMessage({...newAssistantMessage, _id: assistantResult.insertedId}));
+                    }
+                }
+            } catch (error){
+                console.error('Error regenerando respuesta', error);
+            } finally{
+                io.to(userRoom).emit('assistantTyping', {isTyping: false});
+            }
         } catch (error){
             console.error('Error editando mensaje', error);
             if (callback){
                 callback({error: 'No se pudo editar el mensaje'});
+            }
+        }
+    });
+
+    socket.on('deleteMessage', async (payload, callback) => {
+        try{
+            const messageId = payload?.id;
+            if (!messageId){
+                if (callback){
+                    callback({error: 'Datos incompletos'});
+                }
+                return;
+            }
+
+            let objectId;
+            try{
+                objectId = new ObjectId(messageId);
+            } catch (error){
+                if (callback){
+                    callback({error: 'Id de mensaje invalido'});
+                }
+                return;
+            }
+
+            const collection = await getMessagesCollection();
+            const existing = await collection.findOne({_id: objectId});
+
+            if (!existing){
+                if (callback){
+                    callback({error: 'Mensaje no encontrado'});
+                }
+                return;
+            }
+
+            if (existing.role !== 'user'){
+                if (callback){
+                    callback({error: 'Solo se pueden eliminar mensajes de usuario'});
+                }
+                return;
+            }
+
+            const ownerId = existing.userId?.toString();
+            const currentUserId = socket.user?.id;
+            if (!ownerId || !currentUserId || ownerId !== currentUserId){
+                if (callback){
+                    callback({error: 'No es el usuario correspondiente al mensaje'});
+                }
+                return;
+            }
+
+            const assistantDocs = await collection.find({
+                userId: userObjectId,
+                role: 'assistant',
+                replyTo: objectId
+            }).project({_id: 1}).toArray();
+
+            await collection.deleteOne({_id: objectId});
+            if (assistantDocs.length){
+                await collection.deleteMany({
+                    userId: userObjectId,
+                    role: 'assistant',
+                    replyTo: objectId
+                });
+            }
+
+            const deletedIds = [
+                messageId,
+                ...assistantDocs.map((doc) => doc._id.toString())
+            ];
+
+            io.to(userRoom).emit('messageDeleted', {ids: deletedIds});
+
+            if (callback){
+                callback();
+            }
+        } catch (error){
+            console.error('Error eliminando mensaje', error);
+            if (callback){
+                callback({error: 'No se pudo eliminar el mensaje'});
             }
         }
     });

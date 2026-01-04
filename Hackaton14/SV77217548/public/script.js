@@ -13,9 +13,11 @@ const messageForm = document.getElementById('message-form');
 const messageInput = document.getElementById('message-input');
 const messages = document.getElementById('messages');
 const clearButton = document.getElementById('clear-button');
+const typingIndicator = document.getElementById('typing-indicator');
 
 let socket = null;
 let authMode = 'login';
+let tokenExpiryTimeout = null;
 
 function setAuthMode(mode){
     authMode = mode;
@@ -51,6 +53,55 @@ function clearAuth(){
     localStorage.removeItem('chat_user');
 }
 
+function clearTokenExpiry(){
+    if (tokenExpiryTimeout){
+        clearTimeout(tokenExpiryTimeout);
+        tokenExpiryTimeout = null;
+    }
+}
+
+function decodeTokenPayload(token){
+    if (!token){
+        return null;
+    }
+    const parts = token.split('.');
+    if (parts.length < 2){
+        return null;
+    }
+    const base64 = parts[1].replace(/-/g, '+').replace(/_/g, '/');
+    const padded = base64.padEnd(base64.length + (4 - base64.length % 4) % 4, '=');
+    try{
+        return JSON.parse(atob(padded));
+    } catch (error){
+        return null;
+    }
+}
+
+function scheduleTokenExpiry(token){
+    clearTokenExpiry();
+    const payload = decodeTokenPayload(token);
+    const exp = payload?.exp ? payload.exp * 1000 : null;
+    if (!exp){
+        return true;
+    }
+    const delay = exp - Date.now();
+    if (delay <= 0){
+        logout('Sesion expirada');
+        return false;
+    }
+    tokenExpiryTimeout = setTimeout(() => {
+        logout('Sesion expirada');
+    }, delay);
+    return true;
+}
+
+function setTypingIndicator(isTyping){
+    if (!typingIndicator){
+        return;
+    }
+    typingIndicator.classList.toggle('hidden', !isTyping);
+}
+
 function formatTime(isoString){
     if (!isoString){
         return '';
@@ -63,6 +114,7 @@ function createMessageElement(message){
     const wrapper = document.createElement('article');
     wrapper.className = `message message--${message.role}`;
     wrapper.dataset.id = message.id;
+    wrapper.dataset.createdAt = message.createdAt || '';
 
     const meta = document.createElement('div');
     meta.className = 'message__meta';
@@ -94,7 +146,13 @@ function createMessageElement(message){
         editButton.dataset.action = 'edit';
         editButton.textContent = 'Editar';
 
+        const deleteButton = document.createElement('button');
+        deleteButton.type = 'button';
+        deleteButton.dataset.action = 'delete';
+        deleteButton.textContent = 'Eliminar';
+
         actions.appendChild(editButton);
+        actions.appendChild(deleteButton);
         wrapper.appendChild(actions);
     }
 
@@ -131,8 +189,18 @@ function updateMessage(message){
     }
 }
 
+function removeMessages(ids){
+    ids.forEach((id) => {
+        const element = messages.querySelector(`[data-id="${id}"]`);
+        if (element){
+            element.remove();
+        }
+    });
+}
+
 function clearMessages(){
     messages.innerHTML = '';
+    setTypingIndicator(false);
 }
 
 function disconnectSocket(){
@@ -164,8 +232,22 @@ function connectSocket(token){
         clearMessages();
         history.forEach(appendMessage);
     });
-    socket.on('messageCreated', appendMessage);
+    socket.on('messageCreated', (message) => {
+        appendMessage(message);
+        if (message.role === 'assistant'){
+            setTypingIndicator(false);
+        }
+    });
     socket.on('messageUpdated', updateMessage);
+    socket.on('messageDeleted', (payload) => {
+        const ids = payload?.ids || [];
+        if (ids.length){
+            removeMessages(ids);
+        }
+    });
+    socket.on('assistantTyping', (payload) => {
+        setTypingIndicator(Boolean(payload?.isTyping));
+    });
     socket.on('historyCleared', clearMessages);
 }
 
@@ -185,8 +267,10 @@ async function requestAuth(mode, username, password){
 
 function logout(message){
     disconnectSocket();
+    clearTokenExpiry();
     clearAuth();
     clearMessages();
+    setTypingIndicator(false);
     currentUser.textContent = '-';
     showAuth();
     showAuthError(message || '');
@@ -210,6 +294,9 @@ authForm.addEventListener('submit', async (event) => {
         const data = await requestAuth(authMode, username, password);
         saveAuth(data.token, data.user);
         authPassword.value = '';
+        if (!scheduleTokenExpiry(data.token)){
+            return;
+        }
         showChat(data.user);
         connectSocket(data.token);
     } catch (error){
@@ -263,11 +350,11 @@ messages.addEventListener('click', (event) => {
     if (!(target instanceof HTMLElement)){
         return;
     }
-    if (!target.matches('[data-action="edit"]')){
+    if (!target.matches('[data-action]')){
         return;
     }
     if (!socket || !socket.connected){
-        alert('Debes iniciar sesion para editar mensajes');
+        alert('Debes iniciar sesion para modificar mensajes');
         return;
     }
 
@@ -277,18 +364,38 @@ messages.addEventListener('click', (event) => {
     }
 
     const messageId = messageElement.dataset.id;
-    const contentElement = messageElement.querySelector('.message__content');
-    const currentText = contentElement ? contentElement.textContent : '';
-    const nextText = window.prompt('Editar mensaje:', currentText || '');
-    if (!nextText || !messageId){
+    const action = target.dataset.action;
+
+    if (action === 'edit'){
+        const contentElement = messageElement.querySelector('.message__content');
+        const currentText = contentElement ? contentElement.textContent : '';
+        const nextText = window.prompt('Editar mensaje:', currentText || '');
+        if (!nextText || !messageId){
+            return;
+        }
+
+        socket.emit('editMessage', {id: messageId, content: nextText}, (error) => {
+            if (error?.error){
+                alert(error.error);
+            }
+        });
         return;
     }
 
-    socket.emit('editMessage', {id: messageId, content: nextText}, (error) => {
-        if (error?.error){
-            alert(error.error);
+    if (action === 'delete'){
+        if (!messageId){
+            return;
         }
-    });
+        const confirmed = window.confirm('Seguro que deseas eliminar este mensaje?');
+        if (!confirmed){
+            return;
+        }
+        socket.emit('deleteMessage', {id: messageId}, (error) => {
+            if (error?.error){
+                alert(error.error);
+            }
+        });
+    }
 });
 
 const storedToken = localStorage.getItem('chat_token');
@@ -296,8 +403,10 @@ const storedUser = localStorage.getItem('chat_user');
 if (storedToken && storedUser){
     try{
         const user = JSON.parse(storedUser);
-        showChat(user);
-        connectSocket(storedToken);
+        if (scheduleTokenExpiry(storedToken)){
+            showChat(user);
+            connectSocket(storedToken);
+        }
     } catch (error){
         logout('');
     }

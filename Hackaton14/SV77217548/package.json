@@ -1,6 +1,6 @@
 {
   "name": "hackaton14-chatgpt",
-  "version": "0.2.0",
+  "version": "1.0.0",
   "description": "Chat persistente con Socket.io, MongoDB y asistente ChatGPT",
   "main": "src/server.js",
   "type": "commonjs",
