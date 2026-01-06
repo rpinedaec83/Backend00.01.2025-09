@@ -25,8 +25,21 @@ const checkDuplicateUsernameOrEmail = async (
     }
 }
 
+const checkRoleExisted = (req: Request, res: Response, next: NextFunction) => {
+  if (Array.isArray(req.body.roles)) {
+    for (const element of req.body.roles) {
+      if (!ROLES.includes(element)) {
+        res.status(401).send({ message: `El Rol ${element} no existe` });
+        return;
+      }
+    }
+  }
+  next();
+};
+
 const verifySignUp = {
-  checkDuplicateUsernameOrEmail
+  checkDuplicateUsernameOrEmail,
+  checkRoleExisted
 };
 
 export default verifySignUp;
