@@ -62,15 +62,16 @@
 					"type": "noauth"
 				},
 				"method": "POST",
-				"header": [],
+				"header": [
+					{
+						"key": "api-token",
+						"value": "123123",
+						"type": "text"
+					}
+				],
 				"body": {
 					"mode": "formdata",
 					"formdata": [
-						{
-							"key": "avatar",
-							"type": "file",
-							"src": "/C:/Users/Carlos/Pictures/Screenshots/Captura de pantalla 2025-12-26 002705.png"
-						},
 						{
 							"key": "name",
 							"value": "Carlos Medina",
@@ -85,6 +86,11 @@
 							"key": "password",
 							"value": "123456123",
 							"type": "text"
+						},
+						{
+							"key": "avatar",
+							"type": "file",
+							"src": "/C:/Users/Carlos/Pictures/Screenshots/Captura de pantalla 2025-12-27 202759.png"
 						}
 					]
 				},
@@ -180,7 +186,13 @@
 					"type": "noauth"
 				},
 				"method": "POST",
-				"header": [],
+				"header": [
+					{
+						"key": "api-token",
+						"value": "123123",
+						"type": "text"
+					}
+				],
 				"body": {
 					"mode": "raw",
 					"raw": "{\r\n    \"products\": [\"pelota\",\"goma\"],\r\n    \"customerId\" : \"69506b9a63a4f9800f7dae9b\"\r\n}",

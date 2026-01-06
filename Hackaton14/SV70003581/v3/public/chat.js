@@ -33,7 +33,6 @@ function addMessageToUi(data, isUserMessage) {
 
   messageContent.appendChild(messageText);
 
-  // 🔥 SOLO si es tu mensaje → botones
   if (isUserMessage) {
     const editBtn = document.createElement("button");
     editBtn.textContent = "✏️";

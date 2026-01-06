@@ -4,9 +4,7 @@ import { openai } from "../utils/openai.client.js";
 
 export function chatSocketController(io, socket) {
 
-  // =========================
   // ENVIAR MENSAJE
-  // =========================
   socket.on("chat event", async (data) => {
     const messageId = randomUUID();
 
@@ -67,17 +65,13 @@ Máximo 5 interacciones.`
     }
   });
 
-  // =========================
   // EDITAR MENSAJE
-  // =========================
   socket.on("edit message", async ({ id, message }) => {
     // (Más adelante puedes validar autor aquí)
     io.emit("message edited", { id, message });
   });
 
-  // =========================
   // ELIMINAR MENSAJE
-  // =========================
   socket.on("delete message", async ({ id }) => {
     io.emit("message deleted", { id });
   });

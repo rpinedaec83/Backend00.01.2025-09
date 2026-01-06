@@ -12,15 +12,15 @@ export function createApp() {
   const server = createServer(app);
   const io = new Server(server);
 
-  // 🔹 Servir frontend
+  // Servir frontend
   app.use(express.static(join(__dirname, "../public")));
 
-  // 🔹 Ruta principal
+  // Ruta principal
   app.get("/", (_, res) => {
     res.sendFile(join(__dirname, "../public/index.html"));
   });
 
-  // 🔹 Socket.io
+  // Socket.io
   io.on("connection", (socket) => {
     console.log("user connected");
     chatSocketController(io, socket);
