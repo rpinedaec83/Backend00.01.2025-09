@@ -1,5 +1,6 @@
 // swagger.config.ts
-import swaggerJsdoc from 'swagger-jsdoc';
+import path from "path";
+import swaggerJsdoc from "swagger-jsdoc";
 
 const protocol = process.env.SSL_KEY_PATH && process.env.SSL_CERT_PATH ? "https" : "http";
 const port = process.env.PORT || "8080";
@@ -20,7 +21,7 @@ const options: swaggerJsdoc.Options = {
     ],
   },
   // Path to the API docs (route files)
-  apis: ['./src/routes/*.ts'], 
+  apis: [path.join(__dirname, "routes", "*.{ts,js}")],
 };
 
 const swaggerSpec = swaggerJsdoc(options);
