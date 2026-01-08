@@ -46,7 +46,11 @@ app.get("/", (_req, res) => {
   res.send("Hola");
 });
 
-app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
+import swaggerDocument from './swagger-output.json'; // Adjust path as needed
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
+
+
+//app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 authRoutes(app);
 userRoute(app)
