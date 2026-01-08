@@ -10,6 +10,7 @@ import morgan from "morgan";
 import db from './models';
 
 import authRoutes from './routes/auth.route';
+import userRoute from './routes/user.route';
 
 const PORT = Number(process.env.PORT) || 8080;
 const COOKIE_SECRET = process.env.COOKIE_SECRET;
@@ -39,6 +40,7 @@ app.get("/", (_req, res) => {
 });
 
 authRoutes(app);
+userRoute(app)
 
 const start = async () => {
   try {
