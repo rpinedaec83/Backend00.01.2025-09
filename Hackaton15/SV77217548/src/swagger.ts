@@ -8,7 +8,7 @@ const host = `localhost:${port}`;
 const doc = {
     info: {
         title: "Hackaton15 API",
-        version: "0.5.0",
+        version: "1.0.0",
         description: "API de autenticacion con sesion y JWT",
     },
     host,

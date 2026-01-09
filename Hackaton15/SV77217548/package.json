@@ -1,6 +1,6 @@
 {
   "name": "hackaton15-sv77217548",
-  "version": "0.5.0",
+  "version": "1.0.0",
   "description": "Autenticacion y sesiones en Express",
   "main": "dist/server.js",
   "type": "commonjs",

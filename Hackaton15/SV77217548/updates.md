@@ -1,6 +1,6 @@
 # Updates
 
-## v0.5
+## v1.0.0
 - Pruebas automatizadas con node:test y supertest.
 - Script `npm test` que compila y ejecuta pruebas.
 - Archivo `test/auth.test.js` con flujos de sesion, JWT y rol admin.

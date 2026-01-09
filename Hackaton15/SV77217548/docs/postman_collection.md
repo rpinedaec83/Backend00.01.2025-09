@@ -1,5 +1,8 @@
 # Postman Collection (Markdown)
 
+## Link
+https://ronychang-7072311.postman.co/workspace/Rony-Chang's-Workspace~d9b1073d-c660-4631-8875-bbcdfb700a43/collection/50099972-d98b7a02-4528-4953-a49f-41158c5a78ec?action=share&creator=50099972&active-environment=50099972-bd20e56b-04d4-44e3-860a-c9c08dd305cb
+
 ## Variables sugeridas
 - baseUrl: http://localhost:3000
 - accessToken: (se llena despues de /jwt/login)
@@ -53,10 +56,6 @@ pm.environment.set("csrfToken", pm.response.json().csrfToken);
   "email": "demo@correo.com",
   "password": "secret123"
 }
-```
-- Tests (Postman):
-```js
-pm.environment.set("accessToken", pm.response.json().accessToken);
 ```
 
 ### GET /jwt/me
