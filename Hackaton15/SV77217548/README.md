@@ -37,6 +37,7 @@ REFRESH_TTL=7d
 - `POST /jwt/refresh` rota refresh token y entrega nuevo access.
 - `POST /jwt/logout` revoca refresh token.
 - `GET /jwt/me` datos del usuario autenticado con access token.
+- `GET /admin/stats` ruta admin (permite sesion o JWT).
 
 ## Body de ejemplo (registro)
 ```json
@@ -51,9 +52,17 @@ REFRESH_TTL=7d
 - La cookie de sesion se llama `sid`.
 - La cookie de refresh token se llama `refreshToken`.
 - Para `GET /jwt/me` usa header `Authorization: Bearer <accessToken>`.
+- Para `GET /admin/stats` el usuario debe tener rol `admin`.
 
 ## Tests
 - Ver pasos en `test/tests.md`.
+
+## Swagger
+- Genera el archivo con `npm run generate-swagger`.
+- Levanta el server con `npm run dev`.
+- Documentacion disponible en `http://localhost:3000/api-docs`.
+- Para endpoints JWT usa el boton Authorize y pega `Bearer <accessToken>`.
+- Para endpoints de sesion, primero haz login para que el navegador guarde la cookie.
 
 ## Archivos de soporte
 - `updates.md` registro de versiones.

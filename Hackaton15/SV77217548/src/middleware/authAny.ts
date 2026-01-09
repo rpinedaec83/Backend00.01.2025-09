@@ -1,12 +1,16 @@
 import {Request, Response, NextFunction} from "express";
 import {verifyAccessToken} from "../utils/tokens";
 
-const requireAuthJwt = (req: Request, res: Response, next: NextFunction) => {
+const requireAuthAny = (req: Request, res: Response, next: NextFunction) => {
+    if (req.session && req.session.user){
+        req.auth = {id: req.session.user.id, role: req.session.user.role};
+        return next();
+    }
+
     const header = req.headers.authorization || "";
     const token = header.startsWith("Bearer ") ? header.slice(7) : header;
-
     if (!token){
-        return res.status(401).json({message: "Token requerido"});
+        return res.status(401).json({message: "Autenticacion requerida"});
     }
 
     try {
@@ -22,4 +26,4 @@ const requireAuthJwt = (req: Request, res: Response, next: NextFunction) => {
     }
 };
 
-export default requireAuthJwt;
+export default requireAuthAny;

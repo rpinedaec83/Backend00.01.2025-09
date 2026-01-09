@@ -1,5 +1,11 @@
 # Updates
 
+## v0.3
+- Documentacion Swagger con swagger-autogen y Swagger UI.
+- Script `generate-swagger` y endpoint `/api-docs`.
+- Esquemas de seguridad para bearer y cookies en Swagger.
+- Middleware de roles y ruta admin protegida.
+
 ## v0.2
 - Login JWT con access token y refresh token en cookie.
 - Rotacion y revocacion de refresh tokens en MongoDB.
