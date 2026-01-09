@@ -1,5 +1,10 @@
 # Updates
 
+## v0.5
+- Pruebas automatizadas con node:test y supertest.
+- Script `npm test` que compila y ejecuta pruebas.
+- Archivo `test/auth.test.js` con flujos de sesion, JWT y rol admin.
+
 ## v0.4
 - Helmet, CORS y rate limit para endurecer seguridad.
 - CSRF en logout de sesion con endpoint `GET /csrf`.

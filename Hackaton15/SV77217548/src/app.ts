@@ -46,7 +46,7 @@ try {
         swagger: "2.0",
         info: {
             title: "Hackaton15 API",
-            version: "0.4.0",
+            version: "0.5.0",
             description: "API de autenticacion con sesion y JWT",
         },
         paths: {},

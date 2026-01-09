@@ -75,3 +75,9 @@ Coleccion Postman: `test/postman_collection.md`.
 2. Probar rate limit:
    - Ejecuta varias veces `POST /session/login` (mas de 20 en 15 min).
    - Esperado: 429 "Too Many Requests".
+
+## v0.5
+1. Asegura que MongoDB este corriendo.
+2. El runner usa `mongodb://127.0.0.1:27017/sv77217548_h15_test` si no existe `TEST_DATABASE_URL`.
+3. Ejecuta pruebas automatizadas:
+   - `npm test`

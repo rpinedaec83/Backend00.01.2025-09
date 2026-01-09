@@ -63,6 +63,7 @@ REFRESH_TTL=7d
 - CORS con credenciales y origenes desde `CORS_ORIGIN`.
 
 ## Tests
+- Pruebas automatizadas con `npm test` (usa base `sv77217548_h15_test`).
 - Ver pasos en `test/tests.md`.
 
 ## Swagger
