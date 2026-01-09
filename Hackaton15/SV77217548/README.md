@@ -19,10 +19,10 @@ La API levanta en `http://localhost:3000` por defecto.
 ```env
 PORT=3000
 NODE_ENV=development
-SESSION_SECRET=super-secret-please-change
+SESSION_SECRET=session-secreto-cambiar
 DATABASE_URL=mongodb://127.0.0.1:27017/sv77217548_h15
-JWT_ACCESS_SECRET=access-secret-change
-JWT_REFRESH_SECRET=refresh-secret-change
+JWT_ACCESS_SECRET=access-secreto-cambiar
+JWT_REFRESH_SECRET=refresh-secreto-cambiar
 ACCESS_TTL=10m
 REFRESH_TTL=7d
 ```
@@ -33,6 +33,10 @@ REFRESH_TTL=7d
 - `POST /session/logout` cerrar sesion.
 - `GET /me` datos de sesion actual.
 - `GET /private/profile` ruta protegida.
+- `POST /jwt/login` login con JWT (access en body, refresh en cookie).
+- `POST /jwt/refresh` rota refresh token y entrega nuevo access.
+- `POST /jwt/logout` revoca refresh token.
+- `GET /jwt/me` datos del usuario autenticado con access token.
 
 ## Body de ejemplo (registro)
 ```json
@@ -45,7 +49,8 @@ REFRESH_TTL=7d
 
 ## Notas
 - La cookie de sesion se llama `sid`.
-- Las variables JWT quedan listas para la version 0.2.
+- La cookie de refresh token se llama `refreshToken`.
+- Para `GET /jwt/me` usa header `Authorization: Bearer <accessToken>`.
 
 ## Tests
 - Ver pasos en `test/tests.md`.

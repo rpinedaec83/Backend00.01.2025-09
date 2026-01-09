@@ -3,6 +3,7 @@ import morgan from "morgan";
 import cookieParser from "cookie-parser";
 import sessionMiddleware from "./config/session";
 import authSessionRoutes from "./routes/authSession.routes";
+import authJwtRoutes from "./routes/authJwt.routes";
 import privateRoutes from "./routes/private.routes";
 import errorHandler from "./middleware/errorHandler";
 
@@ -20,6 +21,7 @@ app.get("/", (_req, res) => {
 });
 
 app.use(authSessionRoutes);
+app.use(authJwtRoutes);
 app.use(privateRoutes);
 
 app.use(errorHandler);
