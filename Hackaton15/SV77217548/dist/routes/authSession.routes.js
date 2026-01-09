@@ -39,9 +39,31 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = require("express");
 const controller = __importStar(require("../controllers/authSession.controller"));
 const authSession_1 = __importDefault(require("../middleware/authSession"));
+const csrf_1 = __importDefault(require("../middleware/csrf"));
+const rateLimit_1 = require("../middleware/rateLimit");
 const router = (0, express_1.Router)();
-router.post("/session/register", controller.register);
-router.post("/session/login", controller.login);
-router.post("/session/logout", controller.logout);
-router.get("/me", authSession_1.default, controller.me);
+router.post("/session/register", rateLimit_1.authLimiter, (req, res) => {
+    // #swagger.tags = ["Session"]
+    return controller.register(req, res);
+});
+router.post("/session/login", rateLimit_1.authLimiter, (req, res) => {
+    // #swagger.tags = ["Session"]
+    return controller.login(req, res);
+});
+router.get("/csrf", authSession_1.default, csrf_1.default, (req, res) => {
+    // #swagger.tags = ["Session"]
+    // #swagger.security = [{"sessionAuth": []}]
+    return res.json({ csrfToken: req.csrfToken() });
+});
+router.post("/session/logout", authSession_1.default, csrf_1.default, (req, res) => {
+    // #swagger.tags = ["Session"]
+    // #swagger.security = [{"sessionAuth": []}]
+    // #swagger.parameters["x-csrf-token"] = { in: "header", required: true, type: "string" }
+    return controller.logout(req, res);
+});
+router.get("/me", authSession_1.default, (req, res) => {
+    // #swagger.tags = ["Session"]
+    // #swagger.security = [{"sessionAuth": []}]
+    return controller.me(req, res);
+});
 exports.default = router;

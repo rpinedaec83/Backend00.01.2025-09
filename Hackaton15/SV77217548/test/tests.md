@@ -1,6 +1,6 @@
 # Tests
 
-Coleccion Postman: `test/postman_collection.json`.
+Coleccion Postman: `test/postman_collection.md`.
 
 ## v0.1
 1. Instalar dependencias:
@@ -14,13 +14,16 @@ Coleccion Postman: `test/postman_collection.json`.
    - `curl.exe -X POST http://localhost:3000/session/register -H "Content-Type: application/json" -d "{\"email\":\"demo@correo.com\",\"password\":\"secret123\",\"role\":\"user\"}"`
 5. Login y guardar cookie:
    - `curl.exe -c cookies.txt -X POST http://localhost:3000/session/login -H "Content-Type: application/json" -d "{\"email\":\"demo@correo.com\",\"password\":\"secret123\"}"`
-6. Ver sesion activa:
+6. Obtener CSRF token:
+   - `curl.exe -b cookies.txt -c cookies.txt http://localhost:3000/csrf`
+   - Copia `csrfToken` de la respuesta.
+7. Ver sesion activa:
    - `curl.exe -b cookies.txt http://localhost:3000/me`
-7. Acceder a ruta privada:
+8. Acceder a ruta privada:
    - `curl.exe -b cookies.txt http://localhost:3000/private/profile`
-8. Logout:
-   - `curl.exe -b cookies.txt -X POST http://localhost:3000/session/logout`
-9. Verificar sesion cerrada:
+9. Logout (con CSRF):
+   - `curl.exe -b cookies.txt -X POST http://localhost:3000/session/logout -H "X-CSRF-Token: <csrfToken>"`
+10. Verificar sesion cerrada:
    - `curl.exe -b cookies.txt http://localhost:3000/me`
 
 ## v0.2
@@ -65,3 +68,10 @@ Coleccion Postman: `test/postman_collection.json`.
    - Registra un usuario normal y repite el paso 3 o 5.
    - Esperado: 403 "No tienes permisos".
 
+## v0.4
+1. Probar CSRF en logout:
+   - Ejecuta `GET /csrf` y copia `csrfToken`.
+   - Ejecuta `POST /session/logout` con header `X-CSRF-Token`.
+2. Probar rate limit:
+   - Ejecuta varias veces `POST /session/login` (mas de 20 en 15 min).
+   - Esperado: 429 "Too Many Requests".

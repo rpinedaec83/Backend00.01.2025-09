@@ -2,7 +2,7 @@
   "swagger": "2.0",
   "info": {
     "title": "Hackaton15 API",
-    "version": "0.3.0",
+    "version": "0.4.0",
     "description": "API de autenticacion con sesion y JWT"
   },
   "host": "localhost:3000",
@@ -33,6 +33,9 @@
   "paths": {
     "/jwt/login": {
       "post": {
+        "tags": [
+          "JWT"
+        ],
         "description": "",
         "parameters": [
           {
@@ -132,6 +135,9 @@
     },
     "/session/register": {
       "post": {
+        "tags": [
+          "Session"
+        ],
         "description": "",
         "parameters": [
           {
@@ -165,6 +171,9 @@
     },
     "/session/login": {
       "post": {
+        "tags": [
+          "Session"
+        ],
         "description": "",
         "parameters": [
           {
@@ -199,12 +208,38 @@
         }
       }
     },
+    "/csrf": {
+      "get": {
+        "tags": [
+          "Session"
+        ],
+        "description": "",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "sessionAuth": []
+          }
+        ]
+      }
+    },
     "/session/logout": {
       "post": {
         "tags": [
           "Session"
         ],
         "description": "",
+        "parameters": [
+          {
+            "name": "x-csrf-token",
+            "in": "header",
+            "required": true,
+            "type": "string"
+          }
+        ],
         "responses": {
           "200": {
             "description": "OK"

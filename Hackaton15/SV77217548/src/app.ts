@@ -1,23 +1,32 @@
 import express from "express";
 import morgan from "morgan";
 import cookieParser from "cookie-parser";
+import cors from "cors";
+import helmet from "helmet";
 import swaggerUi from "swagger-ui-express";
 import fs from "fs";
 import path from "path";
+import env from "./config/env";
 import sessionMiddleware from "./config/session";
 import authSessionRoutes from "./routes/authSession.routes";
 import authJwtRoutes from "./routes/authJwt.routes";
 import privateRoutes from "./routes/private.routes";
 import errorHandler from "./middleware/errorHandler";
+import {apiLimiter} from "./middleware/rateLimit";
 
 const app = express();
 
 app.set("trust proxy", 1);
 
+const corsOrigins = env.CORS_ORIGIN.split(",").map((origin) => origin.trim()).filter(Boolean);
+
+app.use(helmet());
+app.use(cors({origin: corsOrigins, credentials: true}));
 app.use(morgan("dev"));
 app.use(express.json());
 app.use(cookieParser());
 app.use(sessionMiddleware);
+app.use(apiLimiter);
 
 app.get("/", (_req, res) => {
     res.json({ok: true});
@@ -37,7 +46,7 @@ try {
         swagger: "2.0",
         info: {
             title: "Hackaton15 API",
-            version: "0.3.0",
+            version: "0.4.0",
             description: "API de autenticacion con sesion y JWT",
         },
         paths: {},

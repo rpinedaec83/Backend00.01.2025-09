@@ -39,9 +39,25 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = require("express");
 const controller = __importStar(require("../controllers/authJwt.controller"));
 const authJwt_1 = __importDefault(require("../middleware/authJwt"));
+const rateLimit_1 = require("../middleware/rateLimit");
 const router = (0, express_1.Router)();
-router.post("/jwt/login", controller.login);
-router.post("/jwt/refresh", controller.refresh);
-router.post("/jwt/logout", controller.logout);
-router.get("/jwt/me", authJwt_1.default, controller.me);
+router.post("/jwt/login", rateLimit_1.authLimiter, (req, res) => {
+    // #swagger.tags = ["JWT"]
+    return controller.login(req, res);
+});
+router.post("/jwt/refresh", (req, res) => {
+    // #swagger.tags = ["JWT"]
+    // #swagger.security = [{"refreshAuth": []}]
+    return controller.refresh(req, res);
+});
+router.post("/jwt/logout", (req, res) => {
+    // #swagger.tags = ["JWT"]
+    // #swagger.security = [{"refreshAuth": []}]
+    return controller.logout(req, res);
+});
+router.get("/jwt/me", authJwt_1.default, (req, res) => {
+    // #swagger.tags = ["JWT"]
+    // #swagger.security = [{"bearerAuth": []}]
+    return controller.me(req, res);
+});
 exports.default = router;

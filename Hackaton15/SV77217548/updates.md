@@ -1,5 +1,9 @@
 # Updates
 
+## v0.4
+- Helmet, CORS y rate limit para endurecer seguridad.
+- CSRF en logout de sesion con endpoint `GET /csrf`.
+
 ## v0.3
 - Documentacion Swagger con swagger-autogen y Swagger UI.
 - Script `generate-swagger` y endpoint `/api-docs`.

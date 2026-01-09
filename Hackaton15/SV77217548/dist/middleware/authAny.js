@@ -7,8 +7,8 @@ const requireAuthAny = (req, res, next) => {
         return next();
     }
     const header = req.headers.authorization || "";
-    const [type, token] = header.split(" ");
-    if (type !== "Bearer" || !token) {
+    const token = header.startsWith("Bearer ") ? header.slice(7) : header;
+    if (!token) {
         return res.status(401).json({ message: "Autenticacion requerida" });
     }
     try {

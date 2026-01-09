@@ -1,6 +1,6 @@
 # Hackaton15 - Autenticacion y sesiones (sv77217548)
 
-API REST en TypeScript + Express + MongoDB para autenticacion basada en sesion.
+API REST en TypeScript + Express + MongoDB para autenticacion basada en sesion y JWT.
 
 ## Requisitos
 - Node 18+
@@ -21,6 +21,7 @@ PORT=3000
 NODE_ENV=development
 SESSION_SECRET=session-secreto-cambiar
 DATABASE_URL=mongodb://127.0.0.1:27017/sv77217548_h15
+CORS_ORIGIN=http://localhost:3000
 JWT_ACCESS_SECRET=access-secreto-cambiar
 JWT_REFRESH_SECRET=refresh-secreto-cambiar
 ACCESS_TTL=10m
@@ -30,6 +31,7 @@ REFRESH_TTL=7d
 ## Endpoints
 - `POST /session/register` crear usuario (email, password, role opcional).
 - `POST /session/login` iniciar sesion.
+- `GET /csrf` obtener token CSRF para acciones de sesion.
 - `POST /session/logout` cerrar sesion.
 - `GET /me` datos de sesion actual.
 - `GET /private/profile` ruta protegida.
@@ -53,6 +55,12 @@ REFRESH_TTL=7d
 - La cookie de refresh token se llama `refreshToken`.
 - Para `GET /jwt/me` usa header `Authorization: Bearer <accessToken>`.
 - Para `GET /admin/stats` el usuario debe tener rol `admin`.
+- Para `POST /session/logout` envia `X-CSRF-Token` obtenido desde `GET /csrf`.
+
+## Seguridad
+- Helmet habilitado para cabeceras basicas.
+- Rate limit general (100 req/15 min) y mas estricto en login.
+- CORS con credenciales y origenes desde `CORS_ORIGIN`.
 
 ## Tests
 - Ver pasos en `test/tests.md`.

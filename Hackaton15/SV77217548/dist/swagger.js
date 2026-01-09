@@ -1,10 +1,13 @@
-import swaggerAutogen from "swagger-autogen";
-import path from "path";
-import env from "./config/env";
-
-const port = env.PORT || 3000;
+"use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+const swagger_autogen_1 = __importDefault(require("swagger-autogen"));
+const path_1 = __importDefault(require("path"));
+const env_1 = __importDefault(require("./config/env"));
+const port = env_1.default.PORT || 3000;
 const host = `localhost:${port}`;
-
 const doc = {
     info: {
         title: "Hackaton15 API",
@@ -34,8 +37,6 @@ const doc = {
         },
     },
 };
-
-const outputFile = path.join(__dirname, "swagger-output.json");
-const endpointsFiles = [path.join(__dirname, "routes", "*.{ts,js}")];
-
-swaggerAutogen()(outputFile, endpointsFiles, doc);
+const outputFile = path_1.default.join(__dirname, "swagger-output.json");
+const endpointsFiles = [path_1.default.join(__dirname, "routes", "*.{ts,js}")];
+(0, swagger_autogen_1.default)()(outputFile, endpointsFiles, doc);
