@@ -1,3 +1,4 @@
+// Hackaton 14
 const socket = io();
 const chat = document.getElementById('chat');
 const form = document.getElementById('form-mensaje');
