@@ -1,0 +1,17 @@
+{
+  "name": "hackaton14",
+  "version": "1.0.0",
+  "description": "Chat persistente con Socket.IO, MongoDB y IA - Hackathon 14",
+  "main": "app.js",
+  "scripts": {
+    "dev": "node --watch app.js",
+    "start": "node app.js"
+  },
+  "dependencies": {
+    "dotenv": "^16.4.5",
+    "express": "^4.19.2",
+    "mongoose": "^8.7.0",
+    "socket.io": "^4.8.0",
+    "axios": "^1.7.7"
+  }
+}
