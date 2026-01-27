@@ -1,0 +1,15 @@
+.mensaje.user {
+  background: #d1e7dd;
+  margin-left: 20%;
+  text-align: right;
+}
+
+.mensaje.bot {
+  background: #f8d7da;
+  margin-right: 20%;
+}
+
+.mensaje {
+  max-width: 70%;
+  word-wrap: break-word;
+}
