@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Sistema de Pagos</title>
+</head>
+<body>
+
+  <h1>Sistema de Pagos Online</h1>
+
+  <!-- LOGIN OAUTH -->
+  <section>
+    <h2>Autenticación</h2>
+    <a href="/auth/google">
+      <button>Login con Google</button>
+    </a>
+  </section>
+
+  <hr>
+
+  <!-- PRODUCTO -->
+  <section>
+    <h2>Producto</h2>
+    <p>Producto Demo - $10</p>
+    <button onclick="pay()">Pagar</button>
+  </section>
+
+  <hr>
+
+  <!-- DEVOLUCIÓN -->
+  <section>
+    <h2>Devolución</h2>
+    <input id="paymentId" placeholder="Payment ID">
+    <button onclick="refund()">Devolver</button>
+  </section>
+
+  <script>
+    async function pay() {
+      const res = await fetch("/payments/pay", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ amount: 10 })
+      });
+
+      const data = await res.json();
+      alert("Pago creado: " + data.id);
+    }
+
+    async function refund() {
+      const id = document.getElementById("paymentId").value;
+
+      await fetch("/payments/refund", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ paymentIntentId: id })
+      });
+
+      alert("Pago devuelto");
+    }
+  </script>
+
+</body>
+</html>

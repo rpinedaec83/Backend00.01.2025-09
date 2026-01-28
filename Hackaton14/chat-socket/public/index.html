@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Chat</title>
+</head>
+<body>
+  <input id="user" placeholder="Usuario">
+  <input id="msg" placeholder="Mensaje">
+  <button onclick="send()">Enviar</button>
+  <button onclick="clearChat()">Borrar chat</button>
+
+  <ul id="messages"></ul>
+
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="script.js"></script>
+</body>
+</html>
