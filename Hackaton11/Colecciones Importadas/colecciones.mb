@@ -1,0 +1,38 @@
+use codigo_alumno
+
+db.materia_prima.insertOne({
+  proveedor: "Maderas SAC",
+  tipo: "Madera MDF",
+  cantidad: 50,
+  unidad: "tablas",
+  precio_unitario: 80,
+  fecha_compra: new Date("2026-01-20")
+})
+
+
+db.insumos.insertOne({
+  nombre: "Tornillos",
+  cantidad: 500,
+  unidad: "unidades",
+  proveedor: "Ferretería Central",
+  fecha_compra: new Date("2026-01-22")
+})
+
+
+db.personal.insertOne({
+  nombre: "Juan Pérez",
+  cargo: "Operario",
+  area: "Producción",
+  salario: 1500,
+  fecha_ingreso: new Date("2025-10-01")
+})
+
+
+db.produccion.insertOne({
+  producto: "Armario 3 puertas",
+  cantidad: 10,
+  responsable: "Juan Pérez",
+  fecha_inicio: new Date("2026-01-25"),
+  fecha_fin: new Date("2026-01-26"),
+  estado: "Finalizado"
+})
