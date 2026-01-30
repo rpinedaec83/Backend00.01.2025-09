@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Sistema de Reparaciones</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<header>
+    <h1>Sistema de Gestión de Reparaciones</h1>
+</header>
+
+<main class="container">
+
+    <!-- REGISTRAR CLIENTE -->
+    <section class="card">
+        <h2>Registrar Cliente</h2>
+
+        <form id="formCliente">
+            <input type="text" id="clienteNombre" placeholder="Nombre completo" required>
+            <input type="text" id="clienteDni" placeholder="DNI" required>
+            <button type="submit">Registrar cliente</button>
+        </form>
+    </section>
+
+    <!-- REGISTRAR TELÉFONO -->
+    <section class="card">
+        <h2>Registrar Teléfono</h2>
+
+        <form id="formTelefono">
+            <input type="text" id="telefonoImei" placeholder="IMEI" required>
+            <input type="text" id="telefonoSerie" placeholder="Serie" required>
+            <input type="text" id="telefonoMarca" placeholder="Marca" required>
+            <input type="text" id="telefonoModelo" placeholder="Modelo" required>
+            <input type="text" id="telefonoDiagnostico" placeholder="Diagnóstico inicial" required>
+            <button type="submit">Guardar teléfono</button>
+        </form>
+    </section>
+
+    <!-- REGISTRAR TÉCNICO -->
+    <section class="card">
+        <h2>Registrar Técnico</h2>
+
+        <form id="formTecnico">
+            <input type="number" id="tecnicoId" placeholder="ID" required>
+            <input type="text" id="tecnicoNombre" placeholder="Nombre" required>
+            <input type="text" id="tecnicoSkills" placeholder="Skills (ejm: Samsung, Apple)" required>
+            <button type="submit">Registrar técnico</button>
+        </form>
+    </section>
+
+    <!-- CREAR REPARACIÓN -->
+    <section class="card">
+        <h2>Crear Reparación</h2>
+
+        <form id="formReparacion">
+            <input type="number" id="reparacionId" placeholder="ID reparación" required>
+            <input type="number" id="costoReparacion" placeholder="Costo total" required>
+            <input type="number" id="abonoReparacion" placeholder="Abono" required>
+            <button type="submit">Crear reparación</button>
+        </form>
+    </section>
+
+    <!-- RESULTADOS -->
+    <section class="card">
+        <h2>Listado general</h2>
+
+        <h3>Clientes</h3>
+        <ul id="listaClientes"></ul>
+
+        <h3>Teléfonos</h3>
+        <ul id="listaTelefonos"></ul>
+
+        <h3>Técnicos</h3>
+        <ul id="listaTecnicos"></ul>
+
+        <h3>Reparaciones</h3>
+        <ul id="listaReparaciones"></ul>
+    </section>
+
+</main>
+
+<script src="main.js"></script>
+</body>
+</html>

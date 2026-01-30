@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Chat Hackathon</title>
+</head>
+<body>
+  <h2>Chat</h2>
+  <ul id="messages"></ul>
+
+  <input id="user" placeholder="Usuario" />
+  <input id="message" placeholder="Mensaje" />
+  <button onclick="sendMessage()">Enviar</button>
+  <button onclick="clearChat()">Borrar Chat</button>
+
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="client.js"></script>
+</body>
+</html>
