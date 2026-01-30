@@ -1,0 +1,6 @@
+USE sandbox;
+CREATE TABLE IF NOT EXISTS messages (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  user VARCHAR(255),
+  message TEXT
+);
