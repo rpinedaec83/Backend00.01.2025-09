@@ -1,0 +1,40 @@
+{
+  "materia_prima": [
+    {
+      "proveedor": "Maderas SAC",
+      "tipo": "Madera MDF",
+      "cantidad": 50,
+      "unidad": "tablas",
+      "precio_unitario": 80,
+      "fecha_compra": "2026-01-20"
+    }
+  ],
+  "insumos": [
+    {
+      "nombre": "Tornillos",
+      "cantidad": 500,
+      "unidad": "unidades",
+      "proveedor": "Ferretería Central",
+      "fecha_compra": "2026-01-22"
+    }
+  ],
+  "personal": [
+    {
+      "nombre": "Juan Pérez",
+      "cargo": "Operario",
+      "area": "Producción",
+      "salario": 1500,
+      "fecha_ingreso": "2025-10-01"
+    }
+  ],
+  "produccion": [
+    {
+      "producto": "Armario 3 puertas",
+      "cantidad": 10,
+      "responsable": "Juan Pérez",
+      "fecha_inicio": "2026-01-25",
+      "fecha_fin": "2026-01-26",
+      "estado": "Finalizado"
+    }
+  ]
+}

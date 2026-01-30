@@ -1,4 +1,3 @@
-// src/database/db.ts
 import mysql from "mysql2";
 import "dotenv/config";
 
@@ -17,8 +16,7 @@ connection.connect((err) => {
   }
   console.log("Conectado a MySQL correctamente");
 
-  // Crea la tabla si no existe (puedes mover esto a un script de migración)
-  const createTable = `
+   const createTable = `
     CREATE TABLE IF NOT EXISTS messages (
       id INT AUTO_INCREMENT PRIMARY KEY,
       user VARCHAR(255) NOT NULL,

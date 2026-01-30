@@ -5,7 +5,6 @@ import { Server } from "socket.io";
 import path from "path";
 import session from "express-session";
 import db from "./database/db";
-// CORRECCIÓN: Importamos tu archivo local desde la misma carpeta
 import passport from "./passport"; 
 
 const app = express();
