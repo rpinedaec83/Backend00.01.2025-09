@@ -1,0 +1,24 @@
+{
+  "name": "api-ventas-tareas",
+  "version": "1.0.0",
+  "description": "API REST para administrar ventas/tareas usando solo node:http",
+  "main": "src/server.js",
+  "scripts": {
+    "start": "node src/server.js",
+    "dev": "node --watch src/server.js"
+  },
+  "keywords": [
+    "api",
+    "rest",
+    "nodejs",
+    "http",
+    "ventas",
+    "tareas",
+    "mvc"
+  ],
+  "author": "",
+  "license": "ISC",
+  "engines": {
+    "node": ">=14.0.0"
+  }
+}

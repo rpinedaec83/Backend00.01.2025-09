@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lista de Compras - NodeJS & MongoDB</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            text-align: center;
+            color: white;
+            margin-bottom: 30px;
+            font-size: 2.5rem;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+        }
+
+        .card {
+            background: white;
+            border-radius: 10px;
+            padding: 25px;
+            margin-bottom: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+
+        h2 {
+            color: #667eea;
+            margin-bottom: 20px;
+            font-size: 1.5rem;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            color: #333;
+            font-weight: 600;
+        }
+
+        input[type="text"],
+        textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 5px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+
+        input[type="text"]:focus,
+        textarea:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+
+        button {
+            background: #667eea;
+            color: white;
+            padding: 12px 30px;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background 0.3s;
+            font-weight: 600;
+        }
+
+        button:hover {
+            background: #5568d3;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .tab {
+            flex: 1;
+            padding: 12px;
+            background: #f5f5f5;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: all 0.3s;
+        }
+
+        .tab.active {
+            background: #667eea;
+            color: white;
+        }
+
+        .items-list {
+            display: none;
+        }
+
+        .items-list.active {
+            display: block;
+        }
+
+        .item {
+            background: #f9f9f9;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 10px;
+            border-left: 4px solid #667eea;
+        }
+
+        .item.completado {
+            opacity: 0.6;
+            border-left-color: #4caf50;
+        }
+
+        .item h3 {
+            color: #333;
+            margin-bottom: 5px;
+        }
+
+        .item p {
+            color: #666;
+            margin-bottom: 5px;
+        }
+
+        .item small {
+            color: #999;
+        }
+
+        .item button {
+            margin-top: 10px;
+            padding: 8px 15px;
+            font-size: 14px;
+            background: #4caf50;
+        }
+
+        .item button:hover {
+            background: #45a049;
+        }
+
+        .item.completado button {
+            display: none;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+            margin-left: 10px;
+        }
+
+        .badge.pendiente {
+            background: #ff9800;
+            color: white;
+        }
+
+        .badge.completado {
+            background: #4caf50;
+            color: white;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 40px;
+            color: #999;
+        }
+
+        .mensaje {
+            padding: 12px;
+            border-radius: 5px;
+            margin-bottom: 15px;
+            display: none;
+        }
+
+        .mensaje.exito {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .mensaje.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>📝 Lista de Compras</h1>
+
+        <!-- Formulario para crear items -->
+        <div class="card">
+            <h2>Agregar Nuevo Item</h2>
+            <div id="mensaje" class="mensaje"></div>
+            <form id="formCrear">
+                <div class="form-group">
+                    <label for="nombre">Nombre:</label>
+                    <input type="text" id="nombre" name="nombre" required placeholder="Ej: Leche">
+                </div>
+                <div class="form-group">
+                    <label for="descripcion">Descripción:</label>
+                    <textarea id="descripcion" name="descripcion" required placeholder="Ej: Leche descremada de 1 litro"></textarea>
+                </div>
+                <button type="submit">➕ Agregar a la Lista</button>
+            </form>
+        </div>
+
+        <!-- Pestañas para ver items -->
+        <div class="card">
+            <h2>Ver Items</h2>
+            <div class="tabs">
+                <button class="tab active" onclick="mostrarTab('todos')">Todos</button>
+                <button class="tab" onclick="mostrarTab('pendientes')">Pendientes</button>
+                <button class="tab" onclick="mostrarTab('completados')">Completados</button>
+            </div>
+
+            <div id="todos" class="items-list active"></div>
+            <div id="pendientes" class="items-list"></div>
+            <div id="completados" class="items-list"></div>
+        </div>
+    </div>
+
+    <script>
+        // Función para mostrar pestañas
+        function mostrarTab(tab) {
+            // Actualizar pestañas activas
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            event.target.classList.add('active');
+
+            // Mostrar contenido correspondiente
+            document.querySelectorAll('.items-list').forEach(list => list.classList.remove('active'));
+            document.getElementById(tab).classList.add('active');
+
+            // Cargar datos
+            cargarItems(tab);
+        }
+
+        // Función para mostrar mensajes
+        function mostrarMensaje(texto, tipo) {
+            const mensaje = document.getElementById('mensaje');
+            mensaje.textContent = texto;
+            mensaje.className = `mensaje ${tipo}`;
+            mensaje.style.display = 'block';
+            
+            setTimeout(() => {
+                mensaje.style.display = 'none';
+            }, 3000);
+        }
+
+        // Función para crear item
+        document.getElementById('formCrear').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const nombre = document.getElementById('nombre').value;
+            const descripcion = document.getElementById('descripcion').value;
+
+            try {
+                const response = await fetch('/api/items/crear', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ nombre, descripcion })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    mostrarMensaje('✅ Item agregado exitosamente', 'exito');
+                    document.getElementById('formCrear').reset();
+                    cargarItems('todos');
+                } else {
+                    mostrarMensaje('❌ Error al crear el item', 'error');
+                }
+            } catch (error) {
+                mostrarMensaje('❌ Error de conexión', 'error');
+                console.error(error);
+            }
+        });
+
+        // Función para cargar items
+        async function cargarItems(tipo) {
+            try {
+                const response = await fetch(`/api/items/${tipo}`);
+                const data = await response.json();
+
+                const container = document.getElementById(tipo);
+
+                if (data.items.length === 0) {
+                    container.innerHTML = '<div class="empty-state">No hay items en esta categoría</div>';
+                    return;
+                }
+
+                container.innerHTML = data.items.map(item => `
+                    <div class="item ${item.esCompletado ? 'completado' : ''}">
+                        <h3>
+                            ${item.nombre}
+                            <span class="badge ${item.esCompletado ? 'completado' : 'pendiente'}">
+                                ${item.esCompletado ? 'Completado' : 'Pendiente'}
+                            </span>
+                        </h3>
+                        <p>${item.descripcion}</p>
+                        <small>Fecha: ${new Date(item.fecha).toLocaleDateString('es-ES')}</small>
+                        ${!item.esCompletado ? `<button onclick="completarItem('${item._id}')">✅ Marcar como Completado</button>` : ''}
+                    </div>
+                `).join('');
+            } catch (error) {
+                console.error('Error al cargar items:', error);
+            }
+        }
+
+        // Función para completar item
+        async function completarItem(id) {
+            try {
+                const response = await fetch(`/api/items/completar/${id}`, {
+                    method: 'PUT'
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    mostrarMensaje('✅ Item completado', 'exito');
+                    cargarItems('todos');
+                }
+            } catch (error) {
+                mostrarMensaje('❌ Error al completar el item', 'error');
+                console.error(error);
+            }
+        }
+
+        // Cargar items al inicio
+        cargarItems('todos');
+    </script>
+</body>
+</html>
